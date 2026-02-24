@@ -85,28 +85,49 @@ export function validateSmtpConfig(config: any): {
 } {
   const errors: string[] = [];
 
-  if (!config.host || typeof config.host !== 'string') {
-    errors.push('SMTP host is required');
+  // Validate provider
+  if (!config.provider || !['http-api', 'smtp'].includes(config.provider)) {
+    errors.push('Provider must be either "http-api" or "smtp"');
   }
 
-  if (!config.port || ![25, 465, 587, 2525].includes(config.port)) {
-    errors.push('SMTP port must be 25, 465, 587, or 2525');
-  }
-
-  if (!config.username || typeof config.username !== 'string') {
-    errors.push('SMTP username is required');
-  }
-
-  if (!config.password || typeof config.password !== 'string') {
-    errors.push('SMTP password is required');
-  }
-
+  // Common validations
   if (!config.fromEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(config.fromEmail)) {
     errors.push('Invalid from email');
   }
 
   if (!config.fromName || typeof config.fromName !== 'string') {
     errors.push('From name is required');
+  }
+
+  if (!config.password || typeof config.password !== 'string') {
+    errors.push('Password/API Key is required');
+  }
+
+  // Provider-specific validations
+  if (config.provider === 'http-api') {
+    // HTTP API validations
+    if (!config.apiType || !['resend', 'sendgrid', 'mailgun', 'custom'].includes(config.apiType)) {
+      errors.push('API type must be resend, sendgrid, mailgun, or custom');
+    }
+
+    if (config.apiType === 'mailgun' && !config.mailgunDomain) {
+      errors.push('Mailgun domain is required for Mailgun API');
+    }
+
+    if (config.apiType === 'custom' && (!config.host || typeof config.host !== 'string')) {
+      errors.push('Host is required for custom API');
+    }
+  } else if (config.provider === 'smtp') {
+    // SMTP validations
+    if (!config.host || typeof config.host !== 'string') {
+      errors.push('SMTP host is required');
+    }
+
+    if (!config.port || ![465, 587].includes(config.port)) {
+      errors.push('SMTP port must be 465 or 587 (port 25 is not supported)');
+    }
+
+    // Username is optional for SMTP
   }
 
   return {

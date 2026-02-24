@@ -215,12 +215,16 @@ class ApiClient {
   }
 
   async updateSmtpConfig(config: {
+    provider: 'http-api' | 'smtp';
     host: string;
     port: number;
     username: string;
     password: string;
     fromEmail: string;
     fromName: string;
+    apiType?: 'resend' | 'sendgrid' | 'mailgun' | 'custom';
+    apiKey?: string;
+    mailgunDomain?: string;
   }) {
     return this.adminRequest('/admin/smtp', {
       method: 'POST',

@@ -56,14 +56,21 @@ export type AdminLog = {
   timestamp: number;
 };
 
-// SMTP configuration types
+// Email configuration types
+export type EmailProvider = 'http-api' | 'smtp';
+
 export type SmtpConfig = {
+  provider: EmailProvider;
   host: string;
   port: number;
   username: string;
   password: string;
   fromEmail: string;
   fromName: string;
+  // HTTP API specific fields
+  apiType?: 'resend' | 'sendgrid' | 'mailgun' | 'custom';
+  apiKey?: string;
+  mailgunDomain?: string; // For Mailgun only
 };
 
 // API response types

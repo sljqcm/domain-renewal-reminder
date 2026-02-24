@@ -24,11 +24,15 @@ interface AdminLog {
 }
 
 interface SmtpConfig {
+  provider: 'http-api' | 'smtp';
   host: string;
   port: number;
   username: string;
   fromEmail: string;
   fromName: string;
+  apiType?: 'resend' | 'sendgrid' | 'mailgun' | 'custom';
+  apiKey?: string;
+  mailgunDomain?: string;
 }
 
 export function Admin() {
@@ -46,11 +50,15 @@ export function Admin() {
 
   // SMTP state
   const [smtpConfig, setSmtpConfig] = useState<SmtpConfig>({
+    provider: 'http-api',
     host: '',
-    port: 587,
+    port: 443,
     username: '',
     fromEmail: '',
     fromName: '爱自由域名管理',
+    apiType: 'resend',
+    apiKey: '',
+    mailgunDomain: '',
   });
   const [smtpPassword, setSmtpPassword] = useState('');
   const [smtpLoading, setSmtpLoading] = useState(false);
@@ -498,8 +506,10 @@ interface SmtpTabProps {
 }
 
 function SmtpTab({ config, password, loading, message, onConfigChange, onPasswordChange, onSave }: SmtpTabProps) {
+  const isHttpApi = config.provider === 'http-api';
+
   return (
-    <form onSubmit={onSave} className="space-y-6 max-w-2xl">
+    <form onSubmit={onSave} className="space-y-6 max-w-3xl">
       {message && (
         <div className={`px-4 py-3 rounded-lg ${
           message.includes('成功') || message.includes('已保存')
@@ -510,85 +520,283 @@ function SmtpTab({ config, password, loading, message, onConfigChange, onPasswor
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-4">
+      {/* Provider Selection */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <label className="block text-sm font-semibold text-gray-900 mb-3">邮件发送方式</label>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <button
+            type="button"
+            onClick={() => onConfigChange({ 
+              ...config, 
+              provider: 'http-api',
+              apiType: config.apiType || 'resend',
+              port: 443,
+            })}
+            className={`p-4 rounded-lg border-2 transition-all text-left ${
+              isHttpApi
+                ? 'border-purple-500 bg-purple-50'
+                : 'border-gray-200 bg-white hover:border-gray-300'
+            }`}
+          >
+            <div className="flex items-start gap-3">
+              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mt-0.5 ${
+                isHttpApi ? 'border-purple-500' : 'border-gray-300'
+              }`}>
+                {isHttpApi && <div className="w-3 h-3 rounded-full bg-purple-500"></div>}
+              </div>
+              <div className="flex-1">
+                <div className="font-semibold text-gray-900">HTTP API（推荐）</div>
+                <div className="text-sm text-gray-600 mt-1">
+                  使用 Resend、SendGrid、Mailgun 等服务的 HTTP API
+                </div>
+                <div className="text-xs text-green-600 mt-1 font-medium">
+                  ✓ 简单易用 ✓ 高可靠性 ✓ 免费额度
+                </div>
+              </div>
+            </div>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onConfigChange({ 
+              ...config, 
+              provider: 'smtp',
+              port: 587,
+            })}
+            className={`p-4 rounded-lg border-2 transition-all text-left ${
+              !isHttpApi
+                ? 'border-purple-500 bg-purple-50'
+                : 'border-gray-200 bg-white hover:border-gray-300'
+            }`}
+          >
+            <div className="flex items-start gap-3">
+              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mt-0.5 ${
+                !isHttpApi ? 'border-purple-500' : 'border-gray-300'
+              }`}>
+                {!isHttpApi && <div className="w-3 h-3 rounded-full bg-purple-500"></div>}
+              </div>
+              <div className="flex-1">
+                <div className="font-semibold text-gray-900">SMTP（高级）</div>
+                <div className="text-sm text-gray-600 mt-1">
+                  使用传统 SMTP 协议（企业邮箱、自建服务器等）
+                </div>
+                <div className="text-xs text-orange-600 mt-1 font-medium">
+                  ⚠️ 仅支持端口 465/587 ⚠️ 配置复杂
+                </div>
+              </div>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      {/* HTTP API Configuration */}
+      {isHttpApi && (
+        <div className="space-y-6 border-t pt-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">API 服务商</label>
+            <select
+              value={config.apiType || 'resend'}
+              onChange={(e) => onConfigChange({ 
+                ...config, 
+                apiType: e.target.value as any,
+                host: e.target.value === 'resend' ? 'api.resend.com' :
+                      e.target.value === 'sendgrid' ? 'api.sendgrid.com' :
+                      e.target.value === 'mailgun' ? 'api.mailgun.net' : '',
+              })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            >
+              <option value="resend">Resend（推荐，100封/天）</option>
+              <option value="sendgrid">SendGrid（100封/天）</option>
+              <option value="mailgun">Mailgun（5000封/月）</option>
+              <option value="custom">自定义 API</option>
+            </select>
+            <p className="mt-1 text-xs text-gray-500">
+              {config.apiType === 'resend' && '最简单的配置，推荐新手使用'}
+              {config.apiType === 'sendgrid' && '功能强大，适合需要高级功能的用户'}
+              {config.apiType === 'mailgun' && '免费额度最高，适合发送量大的应用'}
+              {config.apiType === 'custom' && '使用自定义的 HTTP API 端点'}
+            </p>
+          </div>
+
+          {config.apiType === 'custom' && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">API 服务器地址</label>
+              <input
+                type="text"
+                value={config.host}
+                onChange={(e) => onConfigChange({ ...config, host: e.target.value })}
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                placeholder="api.example.com"
+              />
+            </div>
+          )}
+
+          {config.apiType === 'mailgun' && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Mailgun 域名</label>
+              <input
+                type="text"
+                value={config.mailgunDomain || ''}
+                onChange={(e) => onConfigChange({ ...config, mailgunDomain: e.target.value })}
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                placeholder="mg.yourdomain.com"
+              />
+              <p className="mt-1 text-xs text-gray-500">在 Mailgun 控制面板中找到你的域名</p>
+            </div>
+          )}
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">API Key</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => onPasswordChange(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              placeholder="留空则不修改"
+            />
+            <p className="mt-1 text-xs text-gray-500">
+              在服务商控制面板中获取 API Key
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* SMTP Configuration */}
+      {!isHttpApi && (
+        <div className="space-y-6 border-t pt-6">
+          <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+            <div className="flex gap-2">
+              <svg className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <div className="text-sm text-orange-800">
+                <div className="font-semibold mb-1">SMTP 配置注意事项：</div>
+                <ul className="list-disc list-inside space-y-1 text-xs">
+                  <li>端口 25 被 Cloudflare Workers 禁止，无法使用</li>
+                  <li>仅支持端口 465（SSL）和 587（TLS）</li>
+                  <li>需要 SMTP 服务器支持 STARTTLS 或 SSL</li>
+                  <li>配置错误可能导致邮件发送失败</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">SMTP 服务器</label>
+              <input
+                type="text"
+                value={config.host}
+                onChange={(e) => onConfigChange({ ...config, host: e.target.value })}
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                placeholder="smtp.example.com"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">端口</label>
+              <select
+                value={config.port}
+                onChange={(e) => onConfigChange({ ...config, port: parseInt(e.target.value) })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              >
+                <option value="465">465 (SSL)</option>
+                <option value="587">587 (TLS)</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">用户名</label>
+            <input
+              type="text"
+              value={config.username}
+              onChange={(e) => onConfigChange({ ...config, username: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              placeholder="某些服务不需要用户名"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">密码</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => onPasswordChange(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              placeholder="留空则不修改"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Common Configuration */}
+      <div className="space-y-6 border-t pt-6">
+        <h3 className="text-lg font-semibold text-gray-900">发件人信息</h3>
+        
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">SMTP 服务器</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">发件人邮箱</label>
           <input
-            type="text"
-            value={config.host}
-            onChange={(e) => onConfigChange({ ...config, host: e.target.value })}
+            type="email"
+            value={config.fromEmail}
+            onChange={(e) => onConfigChange({ ...config, fromEmail: e.target.value })}
             required
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            placeholder="smtp.example.com"
+            placeholder="noreply@yourdomain.com"
           />
+          <p className="mt-1 text-xs text-gray-500">
+            {isHttpApi ? '需要在服务商控制面板中验证此邮箱或域名' : '必须是 SMTP 服务器允许的发件地址'}
+          </p>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">端口</label>
-          <select
-            value={config.port}
-            onChange={(e) => onConfigChange({ ...config, port: parseInt(e.target.value) })}
+          <label className="block text-sm font-medium text-gray-700 mb-2">发件人名称</label>
+          <input
+            type="text"
+            value={config.fromName}
+            onChange={(e) => onConfigChange({ ...config, fromName: e.target.value })}
+            required
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-          >
-            <option value="25">25</option>
-            <option value="465">465 (SSL)</option>
-            <option value="587">587 (TLS)</option>
-            <option value="2525">2525</option>
-          </select>
+            placeholder="爱自由域名管理"
+          />
         </div>
       </div>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">用户名（可选）</label>
-        <input
-          type="text"
-          value={config.username}
-          onChange={(e) => onConfigChange({ ...config, username: e.target.value })}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-          placeholder="某些邮件服务不需要用户名"
-        />
-      </div>
+      <div className="flex gap-4 pt-4">
+        <button
+          type="submit"
+          disabled={loading}
+          className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-500 text-white rounded-lg font-semibold hover:from-purple-700 hover:to-blue-600 transition disabled:opacity-50 flex items-center gap-2"
+        >
+          {loading ? (
+            <>
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              <span>保存中...</span>
+            </>
+          ) : (
+            <>
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              <span>保存配置</span>
+            </>
+          )}
+        </button>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">密码</label>
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => onPasswordChange(e.target.value)}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-          placeholder="留空则不修改"
-        />
+        <a
+          href="/EMAIL_SETUP.md"
+          target="_blank"
+          className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition flex items-center gap-2"
+        >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>查看配置指南</span>
+        </a>
       </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">发件人邮箱</label>
-        <input
-          type="email"
-          value={config.fromEmail}
-          onChange={(e) => onConfigChange({ ...config, fromEmail: e.target.value })}
-          required
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">发件人名称</label>
-        <input
-          type="text"
-          value={config.fromName}
-          onChange={(e) => onConfigChange({ ...config, fromName: e.target.value })}
-          required
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-        />
-      </div>
-
-      <button
-        type="submit"
-        disabled={loading}
-        className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-500 text-white rounded-lg font-semibold hover:from-purple-700 hover:to-blue-600 transition disabled:opacity-50"
-      >
-        {loading ? '保存中...' : '保存配置'}
-      </button>
     </form>
   );
 }

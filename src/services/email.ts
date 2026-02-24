@@ -1,6 +1,6 @@
 /**
  * Email Service
- * Handles email sending via SMTP
+ * Handles email sending via HTTP API or SMTP
  */
 
 import { Domain, SmtpConfig, ApiResponse } from '../types';
@@ -10,20 +10,166 @@ export class EmailService {
   constructor(private smtpConfig: SmtpConfig) {}
 
   /**
-   * Send email via SMTP
-   * Uses HTTP API since Cloudflare Workers doesn't support direct SMTP connections
+   * Send email using configured provider
    */
   async sendEmail(to: string, subject: string, htmlBody: string): Promise<ApiResponse> {
+    if (this.smtpConfig.provider === 'http-api') {
+      return this.sendViaHttpApi(to, subject, htmlBody);
+    } else {
+      return this.sendViaSmtp(to, subject, htmlBody);
+    }
+  }
+
+  /**
+   * Send email via HTTP API (Resend, SendGrid, Mailgun, etc.)
+   */
+  private async sendViaHttpApi(to: string, subject: string, htmlBody: string): Promise<ApiResponse> {
     try {
-      console.log('Sending email:', { to, subject });
-      console.log('SMTP Config:', {
-        host: this.smtpConfig.host,
-        port: this.smtpConfig.port,
-        from: this.smtpConfig.fromEmail,
+      console.log('Sending email via HTTP API:', { 
+        to, 
+        subject, 
+        apiType: this.smtpConfig.apiType 
       });
 
-      // 构建邮件内容
-      const emailData = {
+      switch (this.smtpConfig.apiType) {
+        case 'resend':
+          return await this.sendViaResend(to, subject, htmlBody);
+        case 'sendgrid':
+          return await this.sendViaSendGrid(to, subject, htmlBody);
+        case 'mailgun':
+          return await this.sendViaMailgun(to, subject, htmlBody);
+        case 'custom':
+          return await this.sendViaCustomApi(to, subject, htmlBody);
+        default:
+          throw new Error(`Unsupported API type: ${this.smtpConfig.apiType}`);
+      }
+    } catch (error) {
+      console.error('HTTP API email error:', error);
+      await this.logEmailError(to, subject, error);
+      return {
+        success: false,
+        error: {
+          code: 'EMAIL_SEND_FAILED',
+          message: 'Failed to send email via HTTP API',
+          details: error instanceof Error ? error.message : 'Unknown error',
+        },
+      };
+    }
+  }
+
+  /**
+   * Send via Resend API
+   */
+  private async sendViaResend(to: string, subject: string, htmlBody: string): Promise<ApiResponse> {
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${this.smtpConfig.apiKey || this.smtpConfig.password}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: `${this.smtpConfig.fromName} <${this.smtpConfig.fromEmail}>`,
+        to: [to],
+        subject: subject,
+        html: htmlBody,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(`Resend API error: ${JSON.stringify(error)}`);
+    }
+
+    return {
+      success: true,
+      message: 'Email sent successfully via Resend',
+    };
+  }
+
+  /**
+   * Send via SendGrid API
+   */
+  private async sendViaSendGrid(to: string, subject: string, htmlBody: string): Promise<ApiResponse> {
+    const response = await fetch('https://api.sendgrid.com/v3/mail/send', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${this.smtpConfig.apiKey || this.smtpConfig.password}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        personalizations: [{
+          to: [{ email: to }],
+        }],
+        from: {
+          email: this.smtpConfig.fromEmail,
+          name: this.smtpConfig.fromName,
+        },
+        subject: subject,
+        content: [{
+          type: 'text/html',
+          value: htmlBody,
+        }],
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`SendGrid API error: ${error}`);
+    }
+
+    return {
+      success: true,
+      message: 'Email sent successfully via SendGrid',
+    };
+  }
+
+  /**
+   * Send via Mailgun API
+   */
+  private async sendViaMailgun(to: string, subject: string, htmlBody: string): Promise<ApiResponse> {
+    const domain = this.smtpConfig.mailgunDomain || this.smtpConfig.host;
+    const auth = btoa(`api:${this.smtpConfig.apiKey || this.smtpConfig.password}`);
+    
+    const formData = new FormData();
+    formData.append('from', `${this.smtpConfig.fromName} <${this.smtpConfig.fromEmail}>`);
+    formData.append('to', to);
+    formData.append('subject', subject);
+    formData.append('html', htmlBody);
+
+    const response = await fetch(`https://api.mailgun.net/v3/${domain}/messages`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Basic ${auth}`,
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`Mailgun API error: ${error}`);
+    }
+
+    return {
+      success: true,
+      message: 'Email sent successfully via Mailgun',
+    };
+  }
+
+  /**
+   * Send via custom HTTP API
+   */
+  private async sendViaCustomApi(to: string, subject: string, htmlBody: string): Promise<ApiResponse> {
+    const authHeader = this.smtpConfig.username 
+      ? `Basic ${btoa(`${this.smtpConfig.username}:${this.smtpConfig.password}`)}`
+      : `Bearer ${this.smtpConfig.apiKey || this.smtpConfig.password}`;
+
+    const response = await fetch(`https://${this.smtpConfig.host}/api/send`, {
+      method: 'POST',
+      headers: {
+        'Authorization': authHeader,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
         from: {
           email: this.smtpConfig.fromEmail,
           name: this.smtpConfig.fromName,
@@ -31,43 +177,168 @@ export class EmailService {
         to: [{ email: to }],
         subject: subject,
         html: htmlBody,
-      };
+      }),
+    });
 
-      // 尝试使用通用的 SMTP HTTP API
-      // 注意：这需要你的 SMTP 服务支持 HTTP API
-      // 如果你的服务不支持，需要使用第三方邮件服务（如 Resend、SendGrid、Mailgun）
-      
-      const authHeader = this.smtpConfig.username 
-        ? `Basic ${btoa(`${this.smtpConfig.username}:${this.smtpConfig.password}`)}`
-        : `Bearer ${this.smtpConfig.password}`;
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Custom API error: ${response.status} - ${errorText}`);
+    }
 
-      const response = await fetch(`https://${this.smtpConfig.host}/api/send`, {
-        method: 'POST',
-        headers: {
-          'Authorization': authHeader,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(emailData),
+    return {
+      success: true,
+      message: 'Email sent successfully via custom API',
+    };
+  }
+
+  /**
+   * Send email via SMTP (TCP Socket)
+   * Note: This requires implementing the full SMTP protocol
+   */
+  private async sendViaSmtp(to: string, subject: string, htmlBody: string): Promise<ApiResponse> {
+    try {
+      console.log('Sending email via SMTP:', { 
+        to, 
+        subject,
+        host: this.smtpConfig.host,
+        port: this.smtpConfig.port,
       });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`SMTP API error: ${response.status} - ${errorText}`);
+      // Import Cloudflare Workers TCP Socket API
+      // @ts-ignore - Cloudflare Workers specific API
+      const { connect } = await import('cloudflare:sockets');
+
+      const socket = connect({
+        hostname: this.smtpConfig.host,
+        port: this.smtpConfig.port,
+      }, {
+        secureTransport: this.smtpConfig.port === 465 ? 'on' : 'starttls'
+      });
+
+      const writer = socket.writable.getWriter();
+      const reader = socket.readable.getReader();
+      const encoder = new TextEncoder();
+      const decoder = new TextDecoder();
+
+      try {
+        // Helper function to send command
+        const sendCommand = async (command: string) => {
+          console.log('SMTP >', command);
+          await writer.write(encoder.encode(command + '\r\n'));
+        };
+
+        // Helper function to read response
+        const readResponse = async (): Promise<string> => {
+          const { value } = await reader.read();
+          const response = decoder.decode(value);
+          console.log('SMTP <', response);
+          return response;
+        };
+
+        // 1. Read server greeting
+        let response = await readResponse();
+        if (!response.startsWith('220')) {
+          throw new Error(`SMTP greeting failed: ${response}`);
+        }
+
+        // 2. Send EHLO
+        await sendCommand(`EHLO ${this.smtpConfig.host}`);
+        response = await readResponse();
+        if (!response.startsWith('250')) {
+          throw new Error(`EHLO failed: ${response}`);
+        }
+
+        // 3. STARTTLS if port 587
+        if (this.smtpConfig.port === 587) {
+          await sendCommand('STARTTLS');
+          response = await readResponse();
+          if (!response.startsWith('220')) {
+            throw new Error(`STARTTLS failed: ${response}`);
+          }
+          // Connection will be upgraded to TLS automatically
+        }
+
+        // 4. AUTH LOGIN
+        if (this.smtpConfig.username && this.smtpConfig.password) {
+          await sendCommand('AUTH LOGIN');
+          response = await readResponse();
+          if (!response.startsWith('334')) {
+            throw new Error(`AUTH LOGIN failed: ${response}`);
+          }
+
+          // Send username (Base64 encoded)
+          await sendCommand(btoa(this.smtpConfig.username));
+          response = await readResponse();
+          if (!response.startsWith('334')) {
+            throw new Error(`Username authentication failed: ${response}`);
+          }
+
+          // Send password (Base64 encoded)
+          await sendCommand(btoa(this.smtpConfig.password));
+          response = await readResponse();
+          if (!response.startsWith('235')) {
+            throw new Error(`Password authentication failed: ${response}`);
+          }
+        }
+
+        // 5. MAIL FROM
+        await sendCommand(`MAIL FROM:<${this.smtpConfig.fromEmail}>`);
+        response = await readResponse();
+        if (!response.startsWith('250')) {
+          throw new Error(`MAIL FROM failed: ${response}`);
+        }
+
+        // 6. RCPT TO
+        await sendCommand(`RCPT TO:<${to}>`);
+        response = await readResponse();
+        if (!response.startsWith('250')) {
+          throw new Error(`RCPT TO failed: ${response}`);
+        }
+
+        // 7. DATA
+        await sendCommand('DATA');
+        response = await readResponse();
+        if (!response.startsWith('354')) {
+          throw new Error(`DATA command failed: ${response}`);
+        }
+
+        // 8. Send email content
+        const emailContent = [
+          `From: ${this.smtpConfig.fromName} <${this.smtpConfig.fromEmail}>`,
+          `To: ${to}`,
+          `Subject: ${subject}`,
+          `Content-Type: text/html; charset=utf-8`,
+          ``,
+          htmlBody,
+          `.`, // End of data
+        ].join('\r\n');
+
+        await sendCommand(emailContent);
+        response = await readResponse();
+        if (!response.startsWith('250')) {
+          throw new Error(`Email sending failed: ${response}`);
+        }
+
+        // 9. QUIT
+        await sendCommand('QUIT');
+        await readResponse();
+
+        return {
+          success: true,
+          message: 'Email sent successfully via SMTP',
+        };
+      } finally {
+        await writer.close();
+        await socket.close();
       }
-
-      return {
-        success: true,
-        message: 'Email sent successfully',
-      };
     } catch (error) {
-      console.error('Email sending error:', error);
+      console.error('SMTP error:', error);
       await this.logEmailError(to, subject, error);
-
       return {
         success: false,
         error: {
           code: 'EMAIL_SEND_FAILED',
-          message: 'Failed to send email',
+          message: 'Failed to send email via SMTP',
           details: error instanceof Error ? error.message : 'Unknown error',
         },
       };
