@@ -20,7 +20,7 @@ export class AuthService {
   /**
    * Register a new user
    */
-  async register(email: string, password: string): Promise<ApiResponse<{ userId: string }>> {
+  async register(email: string, password: string): Promise<ApiResponse<{ userId: string; verificationToken: string }>> {
     try {
       // Validate email domain
       if (!isEmailDomainAllowed(email)) {
@@ -92,7 +92,7 @@ export class AuthService {
 
       return {
         success: true,
-        data: { userId },
+        data: { userId, verificationToken },
         message: 'Registration successful. Please check your email for verification.',
       };
     } catch (error) {

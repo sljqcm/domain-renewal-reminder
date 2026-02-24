@@ -4,6 +4,8 @@
 
 import { Hono } from 'hono';
 import { AuthService } from '../services/auth';
+import { AdminService } from '../services/admin';
+import { EmailService } from '../services/email';
 import { rateLimitAuth } from '../middleware/rateLimit';
 import { requireAuth } from '../middleware/auth';
 
@@ -36,7 +38,63 @@ auth.post('/register', async (c) => {
     const authService = new AuthService(c.env.DB as D1Database, c.env.KV as KVNamespace);
     const result = await authService.register(email, password);
 
-    return c.json(result, result.success ? 201 : 400);
+    if (!result.success || !result.data) {
+      return c.json(result, 400);
+    }
+
+    // Send verification email
+    try {
+      const adminService = new AdminService(
+        c.env.DB as D1Database,
+        c.env.KV as KVNamespace,
+        c.env.ENCRYPTION_KEY as string
+      );
+      
+      const smtpConfigResult = await adminService.getSmtpConfig();
+      
+      if (smtpConfigResult.success && smtpConfigResult.data) {
+        const emailService = new EmailService(smtpConfigResult.data);
+        
+        const token = result.data.verificationToken;
+        const baseUrl = new URL(c.req.url).origin;
+        
+        const { subject, body } = emailService.composeVerificationEmail(email, token, baseUrl);
+        
+        console.log('Sending verification email:', {
+          to: email,
+          subject,
+          smtpProvider: smtpConfigResult.data.provider,
+          smtpHost: smtpConfigResult.data.host,
+          smtpPort: smtpConfigResult.data.port,
+        });
+        
+        const emailResult = await emailService.sendEmail(email, subject, body);
+        
+        if (!emailResult.success) {
+          console.error('Failed to send verification email:', emailResult.error);
+          // Don't fail registration if email fails
+          return c.json({
+            success: true,
+            data: { userId: result.data.userId },
+            message: 'Registration successful, but failed to send verification email. Please contact support.',
+          }, 201);
+        }
+        
+        console.log('Verification email sent successfully');
+      } else {
+        console.warn('SMTP not configured, skipping verification email');
+      }
+    } catch (emailError) {
+      console.error('Error sending verification email:', emailError);
+      // Don't fail registration if email fails
+    }
+
+    // Don't return the verification token to the client
+    return c.json({
+      success: true,
+      data: { userId: result.data.userId },
+      message: result.message,
+    }, 201);
   } catch (error) {
     console.error('Register route error:', error);
     return c.json(
