@@ -279,6 +279,35 @@ curl -X POST https://domain-renewal-reminder.your-subdomain.workers.dev/api/auth
 
 ## 前端部署（Cloudflare Pages）
 
+前端部署有两种方式：
+
+### 方式 A: Git 集成自动部署（强烈推荐）
+
+这是最佳实践，推送代码后自动构建和部署。
+
+**详细步骤请查看：[Git 集成部署指南](GIT_DEPLOYMENT_GUIDE.md)**
+
+**优点：**
+- 推送代码自动部署
+- 环境变量在 Dashboard 管理，不会泄露
+- 支持分支预览部署
+- 可以回滚到任意版本
+- 无需本地构建
+
+**快速步骤：**
+1. 推送代码到 GitHub
+2. 在 Cloudflare Pages 中连接仓库
+3. 配置构建设置和环境变量
+4. 自动构建和部署
+
+### 方式 B: 手动部署
+
+如果不想使用 Git 集成，可以手动构建和部署。
+
+---
+
+## 方式 B: 手动部署步骤
+
 ### 步骤 3: 配置前端环境变量
 
 前端使用环境变量来配置后端 API 地址。有两种方式配置：

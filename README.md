@@ -56,26 +56,28 @@
 
 ### 🚀 快速开始
 
-#### 方法 1: 5分钟快速部署
+#### 方法 1: Git 集成自动部署（推荐）
+
+查看 [Git 集成部署指南](GIT_DEPLOYMENT_GUIDE.md) - 推送代码自动部署
+
+#### 方法 2: 5分钟快速部署
 
 查看 [快速部署指南](QUICK_DEPLOY.md)
 
-#### 方法 2: 完整部署
+#### 方法 3: 完整部署
 
 查看 [完整部署指南](DEPLOYMENT_GUIDE.md)
 
-#### 方法 3: 使用检查清单
+#### 方法 4: 使用检查清单
 
 查看 [部署检查清单](DEPLOYMENT_CHECKLIST.md)
 
 ### 📚 文档
 
+- [Git 集成部署指南](GIT_DEPLOYMENT_GUIDE.md) - 推送代码自动部署（推荐）
 - [完整部署指南](DEPLOYMENT_GUIDE.md) - 详细的部署步骤和配置说明
 - [快速部署指南](QUICK_DEPLOY.md) - 5分钟快速部署
 - [部署检查清单](DEPLOYMENT_CHECKLIST.md) - 确保所有步骤都已完成
-- [后端状态报告](BACKEND_STATUS.md) - 后端代码完整性检查
-- [快速开始](QUICKSTART.md) - 项目概览和使用说明
-- [实现状态](IMPLEMENTATION_STATUS.md) - 功能实现进度
 
 ### 🛠️ 本地开发
 
