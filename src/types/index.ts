@@ -6,30 +6,30 @@
 export type User = {
   id: string;
   email: string;
-  passwordHash: string;
-  isVerified: boolean;
-  isBlacklisted: boolean;
-  blacklistReason?: string;
-  createdAt: number;
-  updatedAt: number;
+  password_hash: string;
+  is_verified: number; // SQLite uses INTEGER for boolean (0 or 1)
+  is_blacklisted: number; // SQLite uses INTEGER for boolean (0 or 1)
+  blacklist_reason?: string;
+  created_at: number;
+  updated_at: number;
 };
 
 // Domain types
 export type Domain = {
   id: string;
-  userId: string;
-  domainAddress: string;
-  renewalUrl: string;
-  registrationDate: number;
-  usagePeriodYears: number;
-  expiryDate: number;
-  reminderDaysOffset: number;
-  reminderStartDate: number;
-  reminderEmail: string;
-  reminderCount: number;
-  remindersSent: number;
-  createdAt: number;
-  updatedAt: number;
+  user_id: string;
+  domain_address: string;
+  renewal_url: string;
+  registration_date: number;
+  usage_period_years: number;
+  expiry_date: number;
+  reminder_days_offset: number;
+  reminder_start_date: number;
+  reminder_email: string;
+  reminder_count: number;
+  reminders_sent: number;
+  created_at: number;
+  updated_at: number;
 };
 
 export type DomainInput = {
@@ -87,7 +87,7 @@ export type ApiResponse<T = any> = {
 
 // Session types
 export type Session = {
-  userId: string;
+  userId: string; // This is stored in KV, not DB, so we can keep camelCase
   createdAt: number;
 };
 

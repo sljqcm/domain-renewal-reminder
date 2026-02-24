@@ -107,7 +107,7 @@ export class ReminderService {
       const { subject, body } = emailService.composeReminderEmail(domain);
 
       // Send email
-      const sendResult = await emailService.sendEmail(domain.reminderEmail, subject, body);
+      const sendResult = await emailService.sendEmail(domain.reminder_email, subject, body);
 
       if (!sendResult.success) {
         console.error(`Failed to send reminder for domain ${domain.id}:`, sendResult.error);
@@ -117,7 +117,7 @@ export class ReminderService {
       // Increment reminder sent count
       await this.incrementReminderSent(domain.id);
 
-      console.log(`Reminder sent for domain ${domain.domainAddress}`);
+      console.log(`Reminder sent for domain ${domain.domain_address}`);
 
       return {
         success: true,

@@ -174,18 +174,18 @@ export class AuthService {
       }
 
       // Check if user is blacklisted
-      if (user.isBlacklisted) {
+      if (user.is_blacklisted) {
         return {
           success: false,
           error: {
             code: 'ACCOUNT_BLACKLISTED',
-            message: user.blacklistReason || 'Your account has been suspended',
+            message: user.blacklist_reason || 'Your account has been suspended',
           },
         };
       }
 
       // Check if user is verified
-      if (!user.isVerified) {
+      if (!user.is_verified) {
         return {
           success: false,
           error: {
@@ -196,7 +196,7 @@ export class AuthService {
       }
 
       // Verify password
-      const passwordMatch = await verifyPassword(password, user.passwordHash);
+      const passwordMatch = await verifyPassword(password, user.password_hash);
 
       if (!passwordMatch) {
         return {

@@ -351,10 +351,10 @@ export class EmailService {
    * Compose reminder email
    */
   composeReminderEmail(domain: Domain): { subject: string; body: string } {
-    const expiryDate = timestampToDate(domain.expiryDate);
+    const expiryDate = timestampToDate(domain.expiry_date);
     const daysRemaining = getDaysUntilExpiry(expiryDate);
 
-    const subject = `域名续期提醒: ${domain.domainAddress} 将在 ${daysRemaining} 天后到期`;
+    const subject = `域名续期提醒: ${domain.domain_address} 将在 ${daysRemaining} 天后到期`;
 
     const body = `
 <!DOCTYPE html>
@@ -448,7 +448,7 @@ export class EmailService {
       
       <div class="info-row">
         <span class="label">域名地址:</span>
-        <span class="value">${domain.domainAddress}</span>
+        <span class="value">${domain.domain_address}</span>
       </div>
       
       <div class="info-row">
@@ -465,12 +465,12 @@ export class EmailService {
       
       <div class="info-row">
         <span class="label">续期网站:</span>
-        <span class="value">${domain.renewalUrl}</span>
+        <span class="value">${domain.renewal_url}</span>
       </div>
     </div>
 
     <div style="text-align: center;">
-      <a href="${domain.renewalUrl}" class="button">
+      <a href="${domain.renewal_url}" class="button">
         立即续期 →
       </a>
     </div>

@@ -268,10 +268,10 @@ export class DomainService {
       const grouped: Record<string, Domain[]> = {};
 
       for (const domain of result.results as Domain[]) {
-        if (!grouped[domain.renewalUrl]) {
-          grouped[domain.renewalUrl] = [];
+        if (!grouped[domain.renewal_url]) {
+          grouped[domain.renewal_url] = [];
         }
-        grouped[domain.renewalUrl].push(domain);
+        grouped[domain.renewal_url].push(domain);
       }
 
       return {
