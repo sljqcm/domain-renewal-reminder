@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
+import { Verify } from './pages/Verify';
 import { Dashboard } from './pages/Dashboard';
 import { Admin } from './pages/Admin';
 import './App.css';
@@ -27,6 +28,7 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/verify" element={<Verify />} />
           <Route path="/admin" element={<Admin />} />
           <Route
             path="/dashboard"
