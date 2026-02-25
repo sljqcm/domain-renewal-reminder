@@ -437,7 +437,8 @@ function UsersTab({ users, loading, currentPage, totalPages, onPageChange, onBla
 
   return (
     <div>
-      <div className="overflow-x-auto">
+      {/* Desktop Table View - Hidden on mobile */}
+      <div className="hidden md:block overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <colgroup>
             <col style={{ width: '30%' }} />
@@ -512,6 +513,77 @@ function UsersTab({ users, loading, currentPage, totalPages, onPageChange, onBla
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* Mobile Card View - Hidden on desktop */}
+      <div className="md:hidden space-y-4">
+        {users.map((user) => (
+          <div key={user.id} className="glass-card rounded-xl shadow-lg p-4">
+            {/* Email */}
+            <div className="mb-3">
+              <div className="text-sm font-bold text-gray-900 break-words">{user.email}</div>
+            </div>
+
+            {/* Status Badges */}
+            <div className="flex flex-wrap gap-2 mb-3">
+              {user.is_verified ? (
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded-full bg-gradient-to-r from-green-400 to-emerald-500 text-white shadow-sm">
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  已验证
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white shadow-sm">
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  未验证
+                </span>
+              )}
+              {user.is_blacklisted ? (
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded-full bg-gradient-to-r from-red-500 to-red-600 text-white shadow-sm">
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                  </svg>
+                  已拉黑
+                </span>
+              ) : null}
+            </div>
+
+            {/* Info Grid */}
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              <div>
+                <div className="text-xs text-gray-500 mb-1">域名数</div>
+                <div className="text-sm font-medium text-gray-900">{user.domain_count || 0}</div>
+              </div>
+              <div>
+                <div className="text-xs text-gray-500 mb-1">注册时间</div>
+                <div className="text-sm font-medium text-gray-900">
+                  {new Date(user.created_at * 1000).toLocaleDateString('zh-CN')}
+                </div>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-2">
+              {!user.is_blacklisted && (
+                <button
+                  onClick={() => onBlacklist(user.id)}
+                  className="flex-1 px-4 py-2 text-sm font-semibold text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-lg transition-all"
+                >
+                  拉黑
+                </button>
+              )}
+              <button
+                onClick={() => onDelete(user.id, user.email)}
+                className="flex-1 px-4 py-2 text-sm font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-all"
+              >
+                删除
+              </button>
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* Pagination */}
