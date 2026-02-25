@@ -290,18 +290,33 @@ export function Admin() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen w-full ink-wash-bg relative">
+      <div className="ink-pattern"></div>
+      
       {/* Header */}
-      <header className="bg-white shadow-sm">
+      <header className="glass-card border-b border-gray-200/50 sticky top-0 z-40 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-gray-900">管理员面板</h1>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg animate-float">
+                <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </div>
+              <div>
+                <h1 className="text-xl sm:text-2xl font-bold text-gradient">
+                  管理员面板
+                </h1>
+                <p className="text-xs sm:text-sm text-gray-600 font-medium">用户管理·SMTP 配置·操作日志</p>
+              </div>
+            </div>
             <button
               onClick={() => {
                 sessionStorage.removeItem('adminPassword');
                 setAuthenticated(false);
               }}
-              className="px-4 py-2 text-sm text-gray-700 hover:text-gray-900 transition"
+              className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-100/80 rounded-lg transition-all font-medium"
             >
               退出登录
             </button>
@@ -309,45 +324,61 @@ export function Admin() {
         </div>
       </header>
 
-      {/* Tabs */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="bg-white rounded-lg shadow mb-6">
-          <div className="border-b border-gray-200">
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 relative z-10">
+        {/* Tabs */}
+        <div className="glass-card rounded-xl sm:rounded-2xl shadow-lg mb-6 overflow-hidden">
+          <div className="border-b border-gray-200/50">
             <nav className="flex -mb-px">
               <button
                 onClick={() => setActiveTab('users')}
-                className={`px-6 py-4 text-sm font-medium border-b-2 transition ${
+                className={`flex-1 sm:flex-none px-4 sm:px-6 py-3 sm:py-4 text-sm font-semibold border-b-2 transition-all ${
                   activeTab === 'users'
-                    ? 'border-purple-600 text-purple-600'
+                    ? 'border-indigo-600 text-indigo-600 bg-indigo-50/50'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                用户管理
+                <div className="flex items-center justify-center gap-2">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                  <span>用户管理</span>
+                </div>
               </button>
               <button
                 onClick={() => setActiveTab('smtp')}
-                className={`px-6 py-4 text-sm font-medium border-b-2 transition ${
+                className={`flex-1 sm:flex-none px-4 sm:px-6 py-3 sm:py-4 text-sm font-semibold border-b-2 transition-all ${
                   activeTab === 'smtp'
-                    ? 'border-purple-600 text-purple-600'
+                    ? 'border-indigo-600 text-indigo-600 bg-indigo-50/50'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                SMTP 配置
+                <div className="flex items-center justify-center gap-2">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                  <span>SMTP 配置</span>
+                </div>
               </button>
               <button
                 onClick={() => setActiveTab('logs')}
-                className={`px-6 py-4 text-sm font-medium border-b-2 transition ${
+                className={`flex-1 sm:flex-none px-4 sm:px-6 py-3 sm:py-4 text-sm font-semibold border-b-2 transition-all ${
                   activeTab === 'logs'
-                    ? 'border-purple-600 text-purple-600'
+                    ? 'border-indigo-600 text-indigo-600 bg-indigo-50/50'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                操作日志
+                <div className="flex items-center justify-center gap-2">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <span>操作日志</span>
+                </div>
               </button>
             </nav>
           </div>
 
-          <div className="p-6">
+          <div className="p-4 sm:p-6">
             {activeTab === 'users' && (
               <UsersTab
                 users={users}
@@ -377,7 +408,7 @@ export function Admin() {
             )}
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
@@ -398,9 +429,9 @@ interface UsersTabProps {
 function UsersTab({ users, loading, currentPage, totalPages, onPageChange, onBlacklist, onDelete }: UsersTabProps) {
   if (loading) {
     return (
-      <div className="text-center py-12">
-        <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
-        <p className="mt-4 text-gray-600">加载中...</p>
+      <div className="text-center py-12 sm:py-16">
+        <div className="inline-block animate-spin rounded-full h-10 w-10 sm:h-12 sm:h-12 border-4 border-indigo-200 border-t-indigo-600"></div>
+        <p className="mt-4 text-sm sm:text-base text-gray-600 font-medium">加载中...</p>
       </div>
     );
   }
@@ -409,56 +440,67 @@ function UsersTab({ users, loading, currentPage, totalPages, onPageChange, onBla
     <div>
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+          <thead className="bg-gray-50/80 backdrop-blur-sm">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">邮箱</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">状态</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">域名数</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">注册时间</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">操作</th>
+              <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">邮箱</th>
+              <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">状态</th>
+              <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">域名数</th>
+              <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">注册时间</th>
+              <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">操作</th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-white/50 backdrop-blur-sm divide-y divide-gray-100">
             {users.map((user) => (
-              <tr key={user.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.email}</td>
-                <td className="px-6 py-4 whitespace-nowrap">
+              <tr key={user.id} className="hover:bg-indigo-50/30 transition-all duration-200">
+                <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-sm font-medium text-gray-900">{user.email}</td>
+                <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                   <div className="flex gap-2">
                     {user.is_verified ? (
-                      <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded-full bg-gradient-to-r from-green-400 to-emerald-500 text-white shadow-sm">
+                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
                         已验证
                       </span>
                     ) : (
-                      <span className="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white shadow-sm">
+                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
                         未验证
                       </span>
                     )}
                     {user.is_blacklisted ? (
-                      <span className="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded-full bg-gradient-to-r from-red-500 to-red-600 text-white shadow-sm">
+                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                        </svg>
                         已拉黑
                       </span>
                     ) : null}
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.domainCount || 0}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-sm text-gray-900 font-medium">{user.domainCount || 0}</td>
+                <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-sm text-gray-600">
                   {new Date(user.created_at * 1000).toLocaleDateString('zh-CN')}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  {!user.is_blacklisted && (
+                <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-sm font-medium">
+                  <div className="flex items-center gap-2">
+                    {!user.is_blacklisted && (
+                      <button
+                        onClick={() => onBlacklist(user.id)}
+                        className="px-3 py-1.5 text-xs font-semibold text-orange-600 hover:bg-orange-50 rounded-lg transition-all"
+                      >
+                        拉黑
+                      </button>
+                    )}
                     <button
-                      onClick={() => onBlacklist(user.id)}
-                      className="text-orange-600 hover:text-orange-900 mr-4"
+                      onClick={() => onDelete(user.id, user.email)}
+                      className="px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50 rounded-lg transition-all"
                     >
-                      拉黑
+                      删除
                     </button>
-                  )}
-                  <button
-                    onClick={() => onDelete(user.id, user.email)}
-                    className="text-red-600 hover:text-red-900"
-                  >
-                    删除
-                  </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -472,17 +514,17 @@ function UsersTab({ users, loading, currentPage, totalPages, onPageChange, onBla
           <button
             onClick={() => onPageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 border-2 border-gray-300 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           >
             上一页
           </button>
-          <span className="text-sm text-gray-700">
+          <span className="text-sm font-medium text-gray-700">
             第 {currentPage} / {totalPages} 页
           </span>
           <button
             onClick={() => onPageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 border-2 border-gray-300 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           >
             下一页
           </button>
@@ -509,20 +551,29 @@ function SmtpTab({ config, password, loading, message, onConfigChange, onPasswor
   const isHttpApi = config.provider === 'http-api';
 
   return (
-    <form onSubmit={onSave} className="space-y-6 max-w-3xl">
+    <form onSubmit={onSave} className="space-y-6 max-w-4xl">
       {message && (
-        <div className={`px-4 py-3 rounded-lg ${
+        <div className={`px-4 py-3 rounded-xl animate-slideDown ${
           message.includes('成功') || message.includes('已保存')
-            ? 'bg-green-50 border border-green-200 text-green-700'
-            : 'bg-red-50 border border-red-200 text-red-700'
+            ? 'bg-green-50/80 border-l-4 border-green-500 text-green-700'
+            : 'bg-red-50/80 border-l-4 border-red-500 text-red-700'
         }`}>
-          {message}
+          <div className="flex items-start gap-3">
+            <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              {message.includes('成功') || message.includes('已保存') ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              )}
+            </svg>
+            <span className="font-medium">{message}</span>
+          </div>
         </div>
       )}
 
       {/* Provider Selection */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <label className="block text-sm font-semibold text-gray-900 mb-3">邮件发送方式</label>
+      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-5">
+        <label className="block text-sm font-bold text-gray-900 mb-4">邮件发送方式</label>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <button
             type="button"
@@ -532,25 +583,42 @@ function SmtpTab({ config, password, loading, message, onConfigChange, onPasswor
               apiType: config.apiType || 'resend',
               port: 443,
             })}
-            className={`p-4 rounded-lg border-2 transition-all text-left ${
+            className={`p-5 rounded-xl border-2 transition-all text-left ${
               isHttpApi
-                ? 'border-purple-500 bg-purple-50'
-                : 'border-gray-200 bg-white hover:border-gray-300'
+                ? 'border-indigo-500 bg-white shadow-lg'
+                : 'border-gray-200 bg-white/50 hover:border-gray-300'
             }`}
           >
             <div className="flex items-start gap-3">
-              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mt-0.5 ${
-                isHttpApi ? 'border-purple-500' : 'border-gray-300'
+              <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center mt-0.5 flex-shrink-0 ${
+                isHttpApi ? 'border-indigo-500' : 'border-gray-300'
               }`}>
-                {isHttpApi && <div className="w-3 h-3 rounded-full bg-purple-500"></div>}
+                {isHttpApi && <div className="w-3.5 h-3.5 rounded-full bg-indigo-500"></div>}
               </div>
-              <div className="flex-1">
-                <div className="font-semibold text-gray-900">HTTP API（推荐）</div>
-                <div className="text-sm text-gray-600 mt-1">
+              <div className="flex-1 min-w-0">
+                <div className="font-bold text-gray-900 mb-1">HTTP API（推荐）</div>
+                <div className="text-sm text-gray-600 mb-2">
                   使用 Resend、SendGrid、Mailgun 等服务的 HTTP API
                 </div>
-                <div className="text-xs text-green-600 mt-1 font-medium">
-                  ✓ 简单易用 ✓ 高可靠性 ✓ 免费额度
+                <div className="flex flex-wrap gap-1.5">
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold rounded-full bg-green-100 text-green-700">
+                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    简单易用
+                  </span>
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold rounded-full bg-green-100 text-green-700">
+                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    高可靠性
+                  </span>
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold rounded-full bg-green-100 text-green-700">
+                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    免费额度
+                  </span>
                 </div>
               </div>
             </div>
@@ -563,25 +631,36 @@ function SmtpTab({ config, password, loading, message, onConfigChange, onPasswor
               provider: 'smtp',
               port: 587,
             })}
-            className={`p-4 rounded-lg border-2 transition-all text-left ${
+            className={`p-5 rounded-xl border-2 transition-all text-left ${
               !isHttpApi
-                ? 'border-purple-500 bg-purple-50'
-                : 'border-gray-200 bg-white hover:border-gray-300'
+                ? 'border-indigo-500 bg-white shadow-lg'
+                : 'border-gray-200 bg-white/50 hover:border-gray-300'
             }`}
           >
             <div className="flex items-start gap-3">
-              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mt-0.5 ${
-                !isHttpApi ? 'border-purple-500' : 'border-gray-300'
+              <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center mt-0.5 flex-shrink-0 ${
+                !isHttpApi ? 'border-indigo-500' : 'border-gray-300'
               }`}>
-                {!isHttpApi && <div className="w-3 h-3 rounded-full bg-purple-500"></div>}
+                {!isHttpApi && <div className="w-3.5 h-3.5 rounded-full bg-indigo-500"></div>}
               </div>
-              <div className="flex-1">
-                <div className="font-semibold text-gray-900">SMTP（高级）</div>
-                <div className="text-sm text-gray-600 mt-1">
+              <div className="flex-1 min-w-0">
+                <div className="font-bold text-gray-900 mb-1">SMTP（高级）</div>
+                <div className="text-sm text-gray-600 mb-2">
                   使用传统 SMTP 协议（企业邮箱、自建服务器等）
                 </div>
-                <div className="text-xs text-orange-600 mt-1 font-medium">
-                  ⚠️ 仅支持端口 465/587 ⚠️ 配置复杂
+                <div className="flex flex-wrap gap-1.5">
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold rounded-full bg-orange-100 text-orange-700">
+                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    仅支持 465/587
+                  </span>
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold rounded-full bg-orange-100 text-orange-700">
+                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    配置复杂
+                  </span>
                 </div>
               </div>
             </div>
@@ -591,9 +670,9 @@ function SmtpTab({ config, password, loading, message, onConfigChange, onPasswor
 
       {/* HTTP API Configuration */}
       {isHttpApi && (
-        <div className="space-y-6 border-t pt-6">
+        <div className="space-y-5 border-t-2 border-gray-200 pt-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">API 服务商</label>
+            <label className="block text-sm font-bold text-gray-900 mb-2.5">API 服务商</label>
             <select
               value={config.apiType || 'resend'}
               onChange={(e) => onConfigChange({ 
@@ -603,30 +682,30 @@ function SmtpTab({ config, password, loading, message, onConfigChange, onPasswor
                       e.target.value === 'sendgrid' ? 'api.sendgrid.com' :
                       e.target.value === 'mailgun' ? 'api.mailgun.net' : '',
               })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full px-4 py-3 text-sm border-2 border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all bg-white/50 backdrop-blur-sm font-medium"
             >
               <option value="resend">Resend（推荐，100封/天）</option>
               <option value="sendgrid">SendGrid（100封/天）</option>
               <option value="mailgun">Mailgun（5000封/月）</option>
               <option value="custom">自定义 API</option>
             </select>
-            <p className="mt-1 text-xs text-gray-500">
-              {config.apiType === 'resend' && '最简单的配置，推荐新手使用'}
-              {config.apiType === 'sendgrid' && '功能强大，适合需要高级功能的用户'}
-              {config.apiType === 'mailgun' && '免费额度最高，适合发送量大的应用'}
-              {config.apiType === 'custom' && '使用自定义的 HTTP API 端点'}
+            <p className="mt-2 text-xs text-gray-600 font-medium">
+              {config.apiType === 'resend' && '✨ 最简单的配置，推荐新手使用'}
+              {config.apiType === 'sendgrid' && '⚡ 功能强大，适合需要高级功能的用户'}
+              {config.apiType === 'mailgun' && '🚀 免费额度最高，适合发送量大的应用'}
+              {config.apiType === 'custom' && '🔧 使用自定义的 HTTP API 端点'}
             </p>
           </div>
 
           {config.apiType === 'custom' && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">API 服务器地址</label>
+              <label className="block text-sm font-bold text-gray-900 mb-2.5">API 服务器地址</label>
               <input
                 type="text"
                 value={config.host}
                 onChange={(e) => onConfigChange({ ...config, host: e.target.value })}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-4 py-3 text-sm border-2 border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all bg-white/50 backdrop-blur-sm font-medium"
                 placeholder="api.example.com"
               />
             </div>
@@ -634,29 +713,29 @@ function SmtpTab({ config, password, loading, message, onConfigChange, onPasswor
 
           {config.apiType === 'mailgun' && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Mailgun 域名</label>
+              <label className="block text-sm font-bold text-gray-900 mb-2.5">Mailgun 域名</label>
               <input
                 type="text"
                 value={config.mailgunDomain || ''}
                 onChange={(e) => onConfigChange({ ...config, mailgunDomain: e.target.value })}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-4 py-3 text-sm border-2 border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all bg-white/50 backdrop-blur-sm font-medium"
                 placeholder="mg.yourdomain.com"
               />
-              <p className="mt-1 text-xs text-gray-500">在 Mailgun 控制面板中找到你的域名</p>
+              <p className="mt-2 text-xs text-gray-600">在 Mailgun 控制面板中找到你的域名</p>
             </div>
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">API Key</label>
+            <label className="block text-sm font-bold text-gray-900 mb-2.5">API Key</label>
             <input
               type="password"
               value={password}
               onChange={(e) => onPasswordChange(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full px-4 py-3 text-sm border-2 border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all bg-white/50 backdrop-blur-sm font-medium"
               placeholder="留空则不修改"
             />
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-2 text-xs text-gray-600">
               在服务商控制面板中获取 API Key
             </p>
           </div>
@@ -665,14 +744,14 @@ function SmtpTab({ config, password, loading, message, onConfigChange, onPasswor
 
       {/* SMTP Configuration */}
       {!isHttpApi && (
-        <div className="space-y-6 border-t pt-6">
-          <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-            <div className="flex gap-2">
-              <svg className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        <div className="space-y-5 border-t-2 border-gray-200 pt-6">
+          <div className="bg-gradient-to-br from-orange-50 to-red-50 border-2 border-orange-200 rounded-xl p-4">
+            <div className="flex gap-3">
+              <svg className="w-6 h-6 text-orange-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <div className="text-sm text-orange-800">
-                <div className="font-semibold mb-1">SMTP 配置注意事项：</div>
+              <div className="text-sm text-orange-900">
+                <div className="font-bold mb-2">SMTP 配置注意事项：</div>
                 <ul className="list-disc list-inside space-y-1 text-xs">
                   <li>端口 25 被 Cloudflare Workers 禁止，无法使用</li>
                   <li>仅支持端口 465（SSL）和 587（TLS）</li>
@@ -683,25 +762,25 @@ function SmtpTab({ config, password, loading, message, onConfigChange, onPasswor
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">SMTP 服务器</label>
+              <label className="block text-sm font-bold text-gray-900 mb-2.5">SMTP 服务器</label>
               <input
                 type="text"
                 value={config.host}
                 onChange={(e) => onConfigChange({ ...config, host: e.target.value })}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-4 py-3 text-sm border-2 border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all bg-white/50 backdrop-blur-sm font-medium"
                 placeholder="smtp.example.com"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">端口</label>
+              <label className="block text-sm font-bold text-gray-900 mb-2.5">端口</label>
               <select
                 value={config.port}
                 onChange={(e) => onConfigChange({ ...config, port: parseInt(e.target.value) })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-4 py-3 text-sm border-2 border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all bg-white/50 backdrop-blur-sm font-medium"
               >
                 <option value="465">465 (SSL)</option>
                 <option value="587">587 (TLS)</option>
@@ -710,23 +789,23 @@ function SmtpTab({ config, password, loading, message, onConfigChange, onPasswor
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">用户名</label>
+            <label className="block text-sm font-bold text-gray-900 mb-2.5">用户名</label>
             <input
               type="text"
               value={config.username}
               onChange={(e) => onConfigChange({ ...config, username: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full px-4 py-3 text-sm border-2 border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all bg-white/50 backdrop-blur-sm font-medium"
               placeholder="某些服务不需要用户名"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">密码</label>
+            <label className="block text-sm font-bold text-gray-900 mb-2.5">密码</label>
             <input
               type="password"
               value={password}
               onChange={(e) => onPasswordChange(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full px-4 py-3 text-sm border-2 border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all bg-white/50 backdrop-blur-sm font-medium"
               placeholder="留空则不修改"
             />
           </div>
@@ -734,46 +813,51 @@ function SmtpTab({ config, password, loading, message, onConfigChange, onPasswor
       )}
 
       {/* Common Configuration */}
-      <div className="space-y-6 border-t pt-6">
-        <h3 className="text-lg font-semibold text-gray-900">发件人信息</h3>
+      <div className="space-y-5 border-t-2 border-gray-200 pt-6">
+        <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+          <svg className="w-5 h-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+          发件人信息
+        </h3>
         
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">发件人邮箱</label>
+          <label className="block text-sm font-bold text-gray-900 mb-2.5">发件人邮箱</label>
           <input
             type="email"
             value={config.fromEmail}
             onChange={(e) => onConfigChange({ ...config, fromEmail: e.target.value })}
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="w-full px-4 py-3 text-sm border-2 border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all bg-white/50 backdrop-blur-sm font-medium"
             placeholder="noreply@yourdomain.com"
           />
-          <p className="mt-1 text-xs text-gray-500">
+          <p className="mt-2 text-xs text-gray-600">
             {isHttpApi ? '需要在服务商控制面板中验证此邮箱或域名' : '必须是 SMTP 服务器允许的发件地址'}
           </p>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">发件人名称</label>
+          <label className="block text-sm font-bold text-gray-900 mb-2.5">发件人名称</label>
           <input
             type="text"
             value={config.fromName}
             onChange={(e) => onConfigChange({ ...config, fromName: e.target.value })}
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="w-full px-4 py-3 text-sm border-2 border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all bg-white/50 backdrop-blur-sm font-medium"
             placeholder="爱自由域名管理"
           />
         </div>
       </div>
 
-      <div className="flex gap-4 pt-4">
+      <div className="flex flex-col sm:flex-row gap-3 pt-4">
         <button
           type="submit"
           disabled={loading}
-          className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-500 text-white rounded-lg font-semibold hover:from-purple-700 hover:to-blue-600 transition disabled:opacity-50 flex items-center gap-2"
+          className="flex-1 px-6 py-3.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-bold hover:from-indigo-700 hover:to-purple-700 transition-all disabled:opacity-50 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
         >
           {loading ? (
             <>
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
               <span>保存中...</span>
             </>
           ) : (
@@ -790,7 +874,7 @@ function SmtpTab({ config, password, loading, message, onConfigChange, onPasswor
           href="https://github.com/zhikanyeye/domain-renewal-reminder/blob/main/EMAIL_SETUP.md"
           target="_blank"
           rel="noopener noreferrer"
-          className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition flex items-center gap-2"
+          className="flex-1 px-6 py-3.5 border-2 border-gray-300 text-gray-700 rounded-xl font-bold hover:bg-gray-50 transition-all flex items-center justify-center gap-2"
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -813,29 +897,55 @@ interface LogsTabProps {
 function LogsTab({ logs, loading }: LogsTabProps) {
   if (loading) {
     return (
-      <div className="text-center py-12">
-        <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
-        <p className="mt-4 text-gray-600">加载中...</p>
+      <div className="text-center py-12 sm:py-16">
+        <div className="inline-block animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-4 border-indigo-200 border-t-indigo-600"></div>
+        <p className="mt-4 text-sm sm:text-base text-gray-600 font-medium">加载中...</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 sm:space-y-4">
       {logs.length === 0 ? (
-        <div className="text-center py-12 text-gray-500">暂无操作日志</div>
+        <div className="text-center py-12 sm:py-16">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+            <svg className="w-8 h-8 sm:w-10 sm:h-10 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">暂无操作日志</h3>
+          <p className="text-sm sm:text-base text-gray-600">管理员操作记录将显示在这里</p>
+        </div>
       ) : (
         logs.map((log) => (
-          <div key={log.id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition">
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <div className="text-sm font-medium text-gray-900">{log.action}</div>
-                {log.details && (
-                  <div className="text-sm text-gray-600 mt-1">{log.details}</div>
-                )}
+          <div key={log.id} className="bg-white/50 backdrop-blur-sm border border-gray-200/50 rounded-xl p-4 sm:p-5 hover:bg-indigo-50/30 hover:border-indigo-200/50 transition-all duration-200 shadow-sm hover:shadow-md">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex items-start gap-3 flex-1 min-w-0">
+                <div className="w-10 h-10 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <svg className="w-5 h-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm sm:text-base font-semibold text-gray-900">{log.action}</div>
+                  {log.details && (
+                    <div className="text-xs sm:text-sm text-gray-600 mt-1 break-words">{log.details}</div>
+                  )}
+                  {log.targetUserId && (
+                    <div className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                      用户 ID: {log.targetUserId}
+                    </div>
+                  )}
+                </div>
               </div>
-              <div className="text-xs text-gray-500 ml-4">
-                {new Date(log.timestamp * 1000).toLocaleString('zh-CN')}
+              <div className="text-xs sm:text-sm text-gray-500 flex-shrink-0 flex items-center gap-1.5">
+                <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span className="whitespace-nowrap">{new Date(log.timestamp * 1000).toLocaleString('zh-CN')}</span>
               </div>
             </div>
           </div>
