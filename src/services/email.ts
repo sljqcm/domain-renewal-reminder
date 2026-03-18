@@ -86,6 +86,29 @@ export class EmailService {
       `
       : '';
 
+    const brandBlock = `
+      <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+        <tr>
+          <td valign="middle" style="padding: 0 14px 0 0;">
+            <table role="presentation" width="52" height="52" cellspacing="0" cellpadding="0" border="0" style="width: 52px; height: 52px; border-radius: 16px; background: linear-gradient(135deg, #59d5ff 0%, #1da9ef 55%, #0a83d8 100%);">
+              <tr>
+                <td align="center" valign="middle">
+                  <div style="width: 26px; height: 26px; border: 3px solid #ffffff; border-radius: 999px;">
+                    <div style="width: 3px; height: 8px; margin: 4px auto 0 auto; background-color: #ffffff; border-radius: 999px;"></div>
+                    <div style="width: 9px; height: 3px; margin: 1px 0 0 12px; background-color: #ffffff; border-radius: 999px;"></div>
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </td>
+          <td valign="middle">
+            <div style="font-size: 18px; line-height: 24px; font-weight: 700; color: #ffffff;">爱自由域名管理</div>
+            <div style="font-size: 12px; line-height: 18px; color: rgba(255, 255, 255, 0.82);">Domain Management Console</div>
+          </td>
+        </tr>
+      </table>
+    `;
+
     return `
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -104,8 +127,9 @@ export class EmailService {
         <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width: 640px; background-color: #ffffff; border: 1px solid #d7e0ea; border-radius: 18px; overflow: hidden;">
           <tr>
             <td style="padding: 28px 32px; background: linear-gradient(135deg, #10324b 0%, #1b5f8f 100%); color: #ffffff;">
+              ${brandBlock}
               <div style="font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.82;">${this.escapeHtml(eyebrow)}</div>
-              <div style="margin-top: 10px; font-size: 28px; line-height: 36px; font-weight: 700;">${this.escapeHtml(title)}</div>
+              <div style="margin-top: 18px; font-size: 28px; line-height: 36px; font-weight: 700;">${this.escapeHtml(title)}</div>
               <div style="margin-top: 12px; font-size: 15px; line-height: 24px; opacity: 0.92;">${this.escapeHtml(intro)}</div>
             </td>
           </tr>
