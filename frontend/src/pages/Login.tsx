@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthShell, StatusBanner } from '../components/chrome';
 import { useAuth } from '../contexts/useAuth';
@@ -11,8 +11,84 @@ export function Login() {
   const [showResendButton, setShowResendButton] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
   const [resendMessage, setResendMessage] = useState('');
+  const [adminEntryVisible, setAdminEntryVisible] = useState(false);
+  const titleTapCountRef = useRef(0);
+  const keyTapCountRef = useRef(0);
+  const titleTapTimerRef = useRef<number | null>(null);
+  const keyTapTimerRef = useRef<number | null>(null);
   const { login } = useAuth();
   const navigate = useNavigate();
+
+  const unlockAdminEntry = useCallback(() => {
+    setAdminEntryVisible(true);
+    if (titleTapTimerRef.current) {
+      window.clearTimeout(titleTapTimerRef.current);
+      titleTapTimerRef.current = null;
+    }
+    if (keyTapTimerRef.current) {
+      window.clearTimeout(keyTapTimerRef.current);
+      keyTapTimerRef.current = null;
+    }
+    titleTapCountRef.current = 0;
+    keyTapCountRef.current = 0;
+  }, []);
+
+  const handleSecretSequence = useCallback(
+    (source: 'title' | 'key') => {
+      if (adminEntryVisible) {
+        return;
+      }
+
+      const countRef = source === 'title' ? titleTapCountRef : keyTapCountRef;
+      const timerRef = source === 'title' ? titleTapTimerRef : keyTapTimerRef;
+
+      if (timerRef.current) {
+        window.clearTimeout(timerRef.current);
+      }
+
+      countRef.current += 1;
+
+      if (countRef.current >= 3) {
+        unlockAdminEntry();
+        return;
+      }
+
+      timerRef.current = window.setTimeout(() => {
+        countRef.current = 0;
+        timerRef.current = null;
+      }, 1200);
+    },
+    [adminEntryVisible, unlockAdminEntry]
+  );
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      const tagName = target?.tagName;
+      const isTypingTarget =
+        tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'SELECT' || target?.isContentEditable;
+
+      if (isTypingTarget || event.metaKey || event.ctrlKey || event.altKey) {
+        return;
+      }
+
+      if (event.key.toLowerCase() === 'k') {
+        handleSecretSequence('key');
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      if (titleTapTimerRef.current) {
+        window.clearTimeout(titleTapTimerRef.current);
+      }
+      if (keyTapTimerRef.current) {
+        window.clearTimeout(keyTapTimerRef.current);
+      }
+    };
+  }, [handleSecretSequence]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,6 +141,7 @@ export function Login() {
       eyebrow="用户登录"
       title="登录系统"
       description="输入已注册的邮箱和密码，进入域名续费提醒后台。"
+      onBrandActivate={() => handleSecretSequence('title')}
       footer={
         <>
           <div className="separator">
@@ -74,9 +151,11 @@ export function Login() {
             <Link to="/register" className="secondary-button">
               创建新账户
             </Link>
-            <Link to="/admin" className="ghost-button">
-              管理员入口
-            </Link>
+            {adminEntryVisible ? (
+              <Link to="/admin" className="ghost-button">
+                管理员入口
+              </Link>
+            ) : null}
           </div>
         </>
       }

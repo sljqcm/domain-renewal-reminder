@@ -7,6 +7,7 @@ type AuthShellProps = {
   description: string;
   children: ReactNode;
   footer?: ReactNode;
+  onBrandActivate?: () => void;
 };
 
 type StatusBannerProps = {
@@ -25,12 +26,17 @@ export function AuthShell({
   description,
   children,
   footer,
+  onBrandActivate,
 }: AuthShellProps) {
   return (
     <div className="auth-shell">
       <div className="auth-panel">
         <section className="auth-panel__main">
-          <BrandMark />
+          <BrandLogo
+            title="爱自由域名管理"
+            subtitle="Domain Management Console"
+            onActivate={onBrandActivate}
+          />
           <div className="auth-copy">
             <span className="auth-eyebrow">{eyebrow}</span>
             <h1 className="auth-title">{title}</h1>

@@ -6,6 +6,7 @@ type BrandLogoProps = {
   title?: string;
   subtitle?: string;
   iconOnly?: boolean;
+  onActivate?: () => void;
 };
 
 export function BrandLogo({
@@ -14,13 +15,14 @@ export function BrandLogo({
   title = '爱自由域名管理',
   subtitle = 'Domain Management Console',
   iconOnly = false,
+  onActivate,
 }: BrandLogoProps) {
   const className = ['brand-mark', compact ? 'compact' : '', center ? 'brand-mark--center' : '']
     .filter(Boolean)
     .join(' ');
 
-  return (
-    <div className={className}>
+  const content = (
+    <>
       <div className="brand-mark__icon" aria-hidden="true">
         <img src={logoMark} alt="" className="brand-mark__icon-image" />
       </div>
@@ -30,6 +32,16 @@ export function BrandLogo({
           <span>{subtitle}</span>
         </div>
       ) : null}
-    </div>
+    </>
   );
+
+  if (onActivate) {
+    return (
+      <button type="button" className={`${className} brand-mark__button`} onClick={onActivate}>
+        {content}
+      </button>
+    );
+  }
+
+  return <div className={className}>{content}</div>;
 }

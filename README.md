@@ -29,6 +29,7 @@
 - ✅ 灵活的邮件配置（支持 HTTP API 和 SMTP）
 - ✅ 域名过滤和分组
 - ✅ 管理员面板（用户管理、邮件配置）
+- ✅ 隐藏式管理员入口（三击标题或按 `K` 三次唤出）
 - ✅ 响应式设计（支持手机、平板、电脑）
 - ✅ 完全免费（基于 Cloudflare 免费套餐）
 
@@ -196,11 +197,14 @@ domain-renewal-reminder/
 
 #### 配置步骤
 
-1. 访问管理员面板：`https://你的域名/admin`
-2. 进入"SMTP 配置"标签
-3. 选择邮件发送方式（HTTP API 或 SMTP）
-4. 填写相应的配置信息
-5. 保存并测试
+1. 打开登录页，通过以下任一方式唤出管理员入口：
+   - 连续点击网站标题 3 次
+   - 在非输入状态下连续按 `K` 键 3 次
+2. 点击出现的“管理员入口”，或直接访问：`https://你的域名/admin`
+3. 进入"SMTP 配置"标签
+4. 选择邮件发送方式（HTTP API 或 SMTP）
+5. 填写相应的配置信息
+6. 保存并测试
 
 详细配置指南请查看 [邮件服务配置文档](EMAIL_SETUP.md)。
 
@@ -212,6 +216,7 @@ domain-renewal-reminder/
 - **速率限制**：防止暴力破解（10请求/分钟）
 - **邮箱验证**：白名单机制，支持 15+ 主流邮箱
 - **访问控制**：用户认证和管理员认证中间件
+- **入口隐藏**：管理员入口默认不显示，需通过标题三击或按键三次触发后才会出现
 
 ### 📊 数据库设计
 
@@ -290,6 +295,7 @@ Domain Renewal Reminder Service (爱自由域名管理) is a completely free web
 - ✅ Scheduled email reminders (daily automatic checks)
 - ✅ Domain filtering and grouping
 - ✅ Admin panel (user management, SMTP configuration)
+- ✅ Hidden admin entry (triple-click the title or press `K` three times)
 - ✅ Responsive design (mobile, tablet, desktop)
 - ✅ Completely free (based on Cloudflare free tier)
 
