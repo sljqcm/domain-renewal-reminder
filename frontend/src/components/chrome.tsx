@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { BrandLogo } from './logo';
 
 type AuthShellProps = {
   eyebrow: string;
@@ -15,19 +16,7 @@ type StatusBannerProps = {
 };
 
 export function BrandMark({ compact = false }: { compact?: boolean }) {
-  return (
-    <div className={`brand-mark${compact ? ' compact' : ''}`}>
-      <div className="brand-mark__icon" aria-hidden="true">
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
-      <div className="brand-mark__copy">
-        <strong>域名续费提醒</strong>
-        <span>Domain Renewal Reminder</span>
-      </div>
-    </div>
-  );
+  return <BrandLogo compact={compact} title="爱自由域名管理" subtitle="Domain Management Console" />;
 }
 
 export function AuthShell({

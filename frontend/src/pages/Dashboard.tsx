@@ -6,6 +6,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/useAuth';
 import { apiClient } from '../api/client';
+import { BrandLogo } from '../components/logo';
 
 interface Domain {
   id: string;
@@ -145,19 +146,7 @@ export function Dashboard() {
       <header className="app-topbar">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg animate-float">
-                <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div className="min-w-0">
-                <h1 className="text-xl sm:text-2xl font-bold text-gradient">
-                  爱自由域名管理
-                </h1>
-                <p className="text-xs sm:text-sm text-gray-600 font-medium break-all">欢迎，{user?.email}</p>
-              </div>
-            </div>
+            <BrandLogo compact subtitle={user?.email ? `欢迎，${user.email}` : 'Domain Management Console'} />
             <button
               onClick={handleLogout}
               className="w-full sm:w-auto px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-100/80 rounded-lg transition-all font-medium"

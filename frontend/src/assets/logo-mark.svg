@@ -19,16 +19,20 @@
       <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_1_1" result="shape"/>
     </filter>
   </defs>
+
   <g filter="url(#logo_shadow)">
     <rect x="52" y="34" width="408" height="408" rx="108" fill="url(#logo_bg)"/>
     <rect x="70" y="52" width="372" height="372" rx="92" fill="url(#logo_glow)" fill-opacity="0.18"/>
+
     <path d="M144 152C175 126 216 112 256 112C317 112 374 144 404 196" stroke="white" stroke-opacity="0.22" stroke-width="18" stroke-linecap="round"/>
     <path d="M118 254C118 178.337 180.337 116 256 116C331.663 116 394 178.337 394 254C394 329.663 331.663 392 256 392" stroke="white" stroke-opacity="0.18" stroke-width="16" stroke-linecap="round"/>
     <path d="M162 320C191 351 225 366 256 366C317 366 369 321 385 262" stroke="white" stroke-opacity="0.28" stroke-width="14" stroke-linecap="round"/>
+
     <circle cx="256" cy="256" r="92" stroke="white" stroke-width="18" stroke-linecap="round"/>
     <circle cx="256" cy="256" r="58" stroke="white" stroke-opacity="0.34" stroke-width="12"/>
     <path d="M256 206V258L296 282" stroke="white" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
     <circle cx="256" cy="256" r="12" fill="white"/>
+
     <circle cx="358" cy="176" r="12" fill="#EAFBFF"/>
     <circle cx="164" cy="332" r="8" fill="white" fill-opacity="0.7"/>
     <circle cx="344" cy="340" r="7" fill="white" fill-opacity="0.55"/>
