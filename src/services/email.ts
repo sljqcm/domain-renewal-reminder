@@ -44,6 +44,49 @@ export class EmailService {
     }
   }
 
+  private sanitizeHeaderValue(value: string): string {
+    return value.replace(/[\r\n]+/g, ' ').trim();
+  }
+
+  private encodeBase64Utf8(value: string): string {
+    const bytes = new TextEncoder().encode(value);
+    let binary = '';
+
+    for (const byte of bytes) {
+      binary += String.fromCharCode(byte);
+    }
+
+    return btoa(binary);
+  }
+
+  private encodeMimeHeader(value: string): string {
+    const sanitized = this.sanitizeHeaderValue(value);
+    if (!sanitized) {
+      return '';
+    }
+
+    if (/^[\x20-\x7E]+$/.test(sanitized) && !/[",;<>]/.test(sanitized)) {
+      return sanitized;
+    }
+
+    return `=?UTF-8?B?${this.encodeBase64Utf8(sanitized)}?=`;
+  }
+
+  private formatMailbox(name: string, email: string): string {
+    const safeEmail = this.sanitizeHeaderValue(email);
+    const safeName = this.encodeMimeHeader(name);
+
+    return safeName ? `${safeName} <${safeEmail}>` : `<${safeEmail}>`;
+  }
+
+  private formatMessageId(): string {
+    const domain = (this.smtpConfig.fromEmail.split('@')[1] || 'localhost')
+      .toLowerCase()
+      .replace(/[^a-z0-9.-]/g, '');
+
+    return `<${crypto.randomUUID()}@${domain}>`;
+  }
+
   private buildEmailLayout(options: {
     preheader: string;
     eyebrow: string;
@@ -102,7 +145,7 @@ export class EmailService {
             </table>
           </td>
           <td valign="middle">
-            <div style="font-size: 18px; line-height: 24px; font-weight: 700; color: #ffffff;">爱自由域名管理</div>
+            <div style="font-size: 18px; line-height: 24px; font-weight: 700; color: #ffffff;">闁绘牞绮鹃崵婊堟偨閸楃偟鍘甸柛姘Ф椤撴悂鎮?/div>
             <div style="font-size: 12px; line-height: 18px; color: rgba(255, 255, 255, 0.82);">Domain Management Console</div>
           </td>
         </tr>
@@ -481,10 +524,18 @@ export class EmailService {
         this.assertSmtpResponse(response, ['354'], 'DATA command');
 
         const boundary = `boundary_${crypto.randomUUID()}`;
+        const fromHeader = this.formatMailbox(this.smtpConfig.fromName, this.smtpConfig.fromEmail);
+        const replyToHeader = this.formatMailbox(this.smtpConfig.fromName, this.smtpConfig.fromEmail);
+        const subjectHeader = this.encodeMimeHeader(subject);
         const messageBody = [
-          `From: ${this.smtpConfig.fromName} <${this.smtpConfig.fromEmail}>`,
+          `From: ${fromHeader}`,
+          `Reply-To: ${replyToHeader}`,
           `To: ${to}`,
-          `Subject: ${subject}`,
+          `Subject: ${subjectHeader}`,
+          `Date: ${new Date().toUTCString()}`,
+          `Message-ID: ${this.formatMessageId()}`,
+          'Auto-Submitted: auto-generated',
+          'X-Auto-Response-Suppress: All',
           'MIME-Version: 1.0',
           `Content-Type: multipart/alternative; boundary="${boundary}"`,
           '',
@@ -543,19 +594,18 @@ export class EmailService {
     const isExpired = daysRemaining < 0;
     const overdueDays = Math.abs(daysRemaining);
     const safeDomain = this.escapeHtml(domain.domain_address);
-    const safeRenewalUrl = this.escapeHtml(domain.renewal_url);
     const expiryLabel = this.escapeHtml(expiryDate.toLocaleDateString('zh-CN'));
     const remainingTone = isExpired || daysRemaining <= 7 ? '#c62828' : '#1565c0';
-    const statusLabel = isExpired ? `已过期 ${overdueDays} 天` : `剩余 ${daysRemaining} 天`;
+    const statusLabel = isExpired ? `Expired ${overdueDays} days ago` : `${daysRemaining} days remaining`;
     const statusIntro = isExpired
-      ? '该域名已过期，但仍处于续费宽限提醒期内，请尽快处理。'
-      : '您配置的域名已经进入提醒窗口，请尽快检查续费状态，避免影响网站访问、邮件服务或后续业务流程。';
+      ? 'This domain has entered the post-expiry handling window. Please confirm its current status as soon as possible.'
+      : 'This domain has entered the notification window you configured. Please review its current status.';
     const statusFooter = isExpired
-      ? '该域名已进入到期后的宽限提醒阶段。若注册商仍支持恢复或续费，请尽快完成处理。'
-      : '如果您已经完成续费，可忽略此邮件；如需继续接收提醒，请保持当前域名记录与提醒邮箱配置有效。';
+      ? 'If your registrar still supports recovery or post-expiry processing, please complete the required action in the registrar console as soon as possible.'
+      : 'If you have already handled this domain, you can ignore this message. To keep receiving notifications, make sure the current domain record and mailbox settings remain valid.';
     const subject = isExpired
-      ? `域名过期提醒：${domain.domain_address} 已过期 ${overdueDays} 天`
-      : `域名到期提醒：${domain.domain_address} 剩余 ${daysRemaining} 天`;
+      ? `Domain status notice: ${domain.domain_address} expired ${overdueDays} days ago`
+      : `Domain status notice: ${domain.domain_address} ${daysRemaining} days remaining`;
 
     const content = `
       <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
@@ -571,20 +621,20 @@ export class EmailService {
                 <td style="padding: 20px 22px;">
                   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
                     <tr>
-                      <td style="padding: 0 0 12px 0; font-size: 13px; line-height: 20px; color: #5f6f82;">域名</td>
+                      <td style="padding: 0 0 12px 0; font-size: 13px; line-height: 20px; color: #5f6f82;">Domain</td>
                       <td align="right" style="padding: 0 0 12px 12px; font-size: 15px; line-height: 22px; font-weight: 600; color: #102a43;">${safeDomain}</td>
                     </tr>
                     <tr>
-                      <td style="padding: 12px 0; border-top: 1px solid #dbe5ef; font-size: 13px; line-height: 20px; color: #5f6f82;">到期日期</td>
+                      <td style="padding: 12px 0; border-top: 1px solid #dbe5ef; font-size: 13px; line-height: 20px; color: #5f6f82;">Expiry date</td>
                       <td align="right" style="padding: 12px 0 12px 12px; border-top: 1px solid #dbe5ef; font-size: 15px; line-height: 22px; color: #102a43;">${expiryLabel}</td>
                     </tr>
                     <tr>
-                      <td style="padding: 12px 0; border-top: 1px solid #dbe5ef; font-size: 13px; line-height: 20px; color: #5f6f82;">当前状态</td>
+                      <td style="padding: 12px 0; border-top: 1px solid #dbe5ef; font-size: 13px; line-height: 20px; color: #5f6f82;">Current status</td>
                       <td align="right" style="padding: 12px 0 12px 12px; border-top: 1px solid #dbe5ef; font-size: 16px; line-height: 22px; font-weight: 700; color: ${remainingTone};">${statusLabel}</td>
                     </tr>
                     <tr>
-                      <td style="padding: 12px 0 0 0; border-top: 1px solid #dbe5ef; font-size: 13px; line-height: 20px; color: #5f6f82;">续费地址</td>
-                      <td align="right" style="padding: 12px 0 0 12px; border-top: 1px solid #dbe5ef; font-size: 14px; line-height: 22px; color: #1565c0; word-break: break-all;">${safeRenewalUrl}</td>
+                      <td style="padding: 12px 0 0 0; border-top: 1px solid #dbe5ef; font-size: 13px; line-height: 20px; color: #5f6f82;">Suggested action</td>
+                      <td align="right" style="padding: 12px 0 0 12px; border-top: 1px solid #dbe5ef; font-size: 14px; line-height: 22px; color: #102a43;">Open the detail page and confirm the current status</td>
                     </tr>
                   </table>
                 </td>
@@ -602,28 +652,28 @@ export class EmailService {
 
     const htmlBody = this.buildEmailLayout({
       preheader: isExpired
-        ? `${domain.domain_address} 已过期 ${overdueDays} 天，当前仍在宽限提醒期内。`
-        : `${domain.domain_address} 将在 ${daysRemaining} 天后到期，请及时续费。`,
-      eyebrow: 'Domain Renewal Reminder',
-      title: isExpired ? '域名过期提醒' : '域名到期提醒',
-      intro: '提醒服务已检测到有域名临近到期，以下是本次需要关注的关键信息。',
+        ? `${domain.domain_address} expired ${overdueDays} days ago. Please review the current status.`
+        : `${domain.domain_address} has ${daysRemaining} days remaining. Please review the current status.`,
+      eyebrow: 'Domain Status Notice',
+      title: isExpired ? 'Domain Status Update' : 'Domain Status Notice',
+      intro: 'The system detected that this domain has entered the attention window you configured. The current status is shown below.',
       content,
-      actionLabel: '查看续费页面',
+      actionLabel: 'View Details',
       actionUrl: domain.renewal_url,
-      footer: '这是一封系统自动发送的提醒邮件，请勿直接回复。如需调整提醒策略，请登录系统后更新域名配置。',
+      footer: 'This is an automated status notification. Please do not reply directly to this email. If you need to adjust the notification strategy, sign in to the system and update the domain settings.',
     });
 
     const textBody = [
-      isExpired ? '【域名过期提醒】' : '【域名到期提醒】',
-      `域名：${domain.domain_address}`,
-      `到期日期：${expiryDate.toLocaleDateString('zh-CN')}`,
-      `当前状态：${statusLabel}`,
-      `续费地址：${domain.renewal_url}`,
+      isExpired ? '[Domain Status Update]' : '[Domain Status Notice]',
+      `Domain: ${domain.domain_address}`,
+      `Expiry date: ${expiryDate.toLocaleDateString('zh-CN')}`,
+      `Current status: ${statusLabel}`,
       '',
       isExpired
-        ? '该域名当前仍处于到期后的宽限提醒期内，请尽快确认是否还能恢复或续费。'
-        : '请尽快确认续费状态，避免影响网站访问或相关业务。',
-      '这是一封系统自动发送的提醒邮件，请勿直接回复。',
+        ? 'This domain is still in the post-expiry handling window. Please check the registrar console and confirm the current status as soon as possible.'
+        : 'This domain has entered the notification window you configured. Please check the registrar console and confirm the current status as soon as possible.',
+      'The detail entry is provided through the HTML email button. If you cannot open it, sign in to the system and review the processing address stored for this domain.',
+      'This is an automated status notification. Please do not reply directly to this email.',
     ].join('\n');
 
     return { subject, htmlBody, textBody };
@@ -636,13 +686,13 @@ export class EmailService {
     const cleanBaseUrl = appUrl.replace(/\/$/, '');
     const verificationUrl = `${cleanBaseUrl}/verify?token=${token}`;
     const safeVerificationUrl = this.escapeHtml(verificationUrl);
-    const subject = '请验证你的邮箱地址';
+    const subject = 'Verify your email address';
 
     const content = `
       <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
         <tr>
           <td style="padding: 0 0 18px 0; font-size: 15px; line-height: 24px; color: #334155;">
-            欢迎使用爱自由域名管理。完成邮箱验证后，你就可以正常登录并接收域名到期提醒。
+            Welcome to the domain management console. Please verify your email address before signing in and receiving automated domain notifications.
           </td>
         </tr>
         <tr>
@@ -650,10 +700,10 @@ export class EmailService {
             <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f8fbfe; border: 1px solid #dbe5ef; border-radius: 14px;">
               <tr>
                 <td style="padding: 20px 22px; font-size: 14px; line-height: 23px; color: #334155;">
-                  <strong style="display: block; margin-bottom: 8px; color: #102a43;">验证说明</strong>
-                  1. 点击下方按钮完成验证。<br>
-                  2. 验证链接 24 小时内有效。<br>
-                  3. 如果按钮无法打开，请复制下方链接到浏览器访问。
+                  <strong style="display: block; margin-bottom: 8px; color: #102a43;">Verification notes</strong>
+                  1. Use the button below to complete verification.<br>
+                  2. This verification link is valid for 24 hours.<br>
+                  3. If the button does not open, copy the backup link below into your browser.
                 </td>
               </tr>
             </table>
@@ -661,7 +711,7 @@ export class EmailService {
         </tr>
         <tr>
           <td style="padding: 0 0 12px 0; font-size: 14px; line-height: 22px; color: #5f6f82;">
-            备用验证链接：
+            Backup verification link:
           </td>
         </tr>
         <tr>
@@ -673,24 +723,24 @@ export class EmailService {
     `.trim();
 
     const htmlBody = this.buildEmailLayout({
-      preheader: '请完成邮箱验证，以启用账号登录和域名提醒服务。',
+      preheader: 'Verify your email address to activate sign-in and domain notifications.',
       eyebrow: 'Account Verification',
-      title: '完成邮箱验证',
-      intro: '为确保提醒邮件可以准确送达，请先验证当前注册邮箱。',
+      title: 'Verify Your Email',
+      intro: 'Please confirm this email address so the system can deliver account and domain updates reliably.',
       content,
-      actionLabel: '立即验证邮箱',
+      actionLabel: 'Verify Email',
       actionUrl: verificationUrl,
-      footer: '如果这不是你本人发起的注册操作，可以直接忽略此邮件。此邮件由系统自动发送，请勿直接回复。',
+      footer: 'If you did not request this account, you can safely ignore this email. This message was sent automatically; please do not reply.',
     });
 
     const textBody = [
-      '【邮箱验证】',
-      '欢迎使用爱自由域名管理。',
-      '请通过以下链接完成邮箱验证，链接 24 小时内有效：',
+      '[Email Verification]',
+      'Welcome to the domain management console.',
+      'Use the link below to verify your email address. The link is valid for 24 hours:',
       verificationUrl,
       '',
-      '如果这不是你本人发起的注册操作，可以直接忽略此邮件。',
-      '此邮件由系统自动发送，请勿直接回复。',
+      'If you did not request this account, you can safely ignore this email.',
+      'This message was sent automatically; please do not reply.',
     ].join('\n');
 
     return { subject, htmlBody, textBody };
