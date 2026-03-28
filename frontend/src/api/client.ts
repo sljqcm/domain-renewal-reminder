@@ -151,11 +151,13 @@ class ApiClient {
     renewalUrl?: string;
     usagePeriodYears?: number;
     reminderCount?: number;
+    status?: 'active' | 'paused' | 'handled' | 'abandoned';
   }, page: number = 1, pageSize: number = 20) {
     const params = new URLSearchParams();
     if (filters?.renewalUrl) params.append('renewalUrl', filters.renewalUrl);
     if (filters?.usagePeriodYears) params.append('usagePeriodYears', filters.usagePeriodYears.toString());
     if (filters?.reminderCount) params.append('reminderCount', filters.reminderCount.toString());
+    if (filters?.status) params.append('status', filters.status);
     params.append('page', page.toString());
     params.append('pageSize', pageSize.toString());
 
@@ -191,6 +193,12 @@ class ApiClient {
   async deleteDomain(id: string) {
     return this.request(`/domains/${id}`, {
       method: 'DELETE',
+    });
+  }
+
+  async renewDomain(id: string) {
+    return this.request(`/domains/${id}/renew`, {
+      method: 'POST',
     });
   }
 

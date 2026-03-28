@@ -300,4 +300,68 @@ wrangler tail
 
 ---
 
+## 数据库迁移说明
+
+### 新建数据库
+
+新建 D1 数据库时，直接执行一次完整初始化即可：
+
+```bash
+wrangler d1 execute domain_renewal_db --remote --file=schema.sql
+```
+
+### 已有旧数据库升级
+
+如果你的远程数据库是在早期版本创建的，不要重复执行 `schema.sql`，而是按迁移文件顺序升级：
+
+```bash
+wrangler d1 execute domain_renewal_db --remote --file=migrations/0002_email_send_logs.sql
+wrangler d1 execute domain_renewal_db --remote --file=migrations/0003_domain_status_workflow.sql
+wrangler d1 execute domain_renewal_db --remote --file=migrations/0004_domain_workflow_fields.sql
+```
+
+说明：
+
+- `0002_email_send_logs.sql`：补发信记录表
+- `0003_domain_status_workflow.sql`：补域名状态字段、续费闭环字段和状态索引
+
+### 本次版本上线前建议检查
+
+```bash
+wrangler d1 execute domain_renewal_db --remote --command="PRAGMA table_info(domains);"
+wrangler d1 execute domain_renewal_db --remote --command="SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;"
+```
+
+`domains` 表里应至少包含以下新字段：
+
+- `status`
+- `status_note`
+- `owner`
+- `processed_at`
+- `last_renewed_at`
+
+## Workflow Upgrade Notes
+
+For the renewal workflow release, existing D1 databases must also run:
+
+```bash
+wrangler d1 execute domain_renewal_db --remote --file=migrations/0004_domain_workflow_fields.sql
+```
+
+After the upgrade, confirm `domains` includes:
+
+- `status`
+- `status_note`
+- `owner`
+- `processed_at`
+- `last_renewed_at`
+
+This release expects:
+
+- `POST /api/domains/:id/renew` to reset reminder progress and move the domain into the next cycle
+- `PUT /api/domains/:id` to support `status`, `statusNote`, `owner`, and `processedAt`
+- reminder cron to skip all non-`active` domains
+
+---
+
 完成！你的服务已成功部署。🎉

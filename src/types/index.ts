@@ -15,6 +15,8 @@ export type User = {
 };
 
 // Domain types
+export type DomainStatus = 'active' | 'paused' | 'handled' | 'abandoned';
+
 export type Domain = {
   id: string;
   user_id: string;
@@ -28,6 +30,11 @@ export type Domain = {
   reminder_email: string;
   reminder_count: number;
   reminders_sent: number;
+  status: DomainStatus;
+  status_note?: string | null;
+  owner?: string | null;
+  processed_at?: number | null;
+  last_renewed_at?: number | null;
   created_at: number;
   updated_at: number;
 };
@@ -46,6 +53,7 @@ export type DomainFilters = {
   renewalUrl?: string;
   usagePeriodYears?: number;
   reminderCount?: number;
+  status?: DomainStatus;
 };
 
 // Admin log types

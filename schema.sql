@@ -31,6 +31,11 @@ CREATE TABLE IF NOT EXISTS domains (
   reminder_email TEXT NOT NULL,
   reminder_count INTEGER NOT NULL,
   reminders_sent INTEGER DEFAULT 0,
+  status TEXT NOT NULL DEFAULT 'active',
+  status_note TEXT,
+  owner TEXT,
+  processed_at INTEGER,
+  last_renewed_at INTEGER,
   created_at INTEGER NOT NULL,
   updated_at INTEGER NOT NULL,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
@@ -42,6 +47,8 @@ CREATE INDEX IF NOT EXISTS idx_domains_usage_period ON domains(usage_period_year
 CREATE INDEX IF NOT EXISTS idx_domains_reminder_count ON domains(reminder_count);
 CREATE INDEX IF NOT EXISTS idx_domains_reminder_date ON domains(reminder_start_date);
 CREATE INDEX IF NOT EXISTS idx_domains_expiry_date ON domains(expiry_date);
+CREATE INDEX IF NOT EXISTS idx_domains_status ON domains(status);
+CREATE INDEX IF NOT EXISTS idx_domains_processed_at ON domains(processed_at);
 
 -- Admin logs table
 CREATE TABLE IF NOT EXISTS admin_logs (

@@ -115,6 +115,8 @@ Schema 文件：
 新增发信记录表的迁移文件：
 
 - [0002_email_send_logs.sql](/D:/domain-renewal-reminder-main/migrations/0002_email_send_logs.sql)
+- [0003_domain_status_workflow.sql](/D:/domain-renewal-reminder-main/migrations/0003_domain_status_workflow.sql)
+- [0004_domain_workflow_fields.sql](/D:/domain-renewal-reminder-main/migrations/0004_domain_workflow_fields.sql)
 
 ## 部署与迁移
 
@@ -168,6 +170,7 @@ npm run build
 
 ```bash
 npx wrangler d1 execute domain_renewal_db --remote --file=migrations/0002_email_send_logs.sql
+npx wrangler d1 execute domain_renewal_db --remote --file=migrations/0003_domain_status_workflow.sql
 ```
 
 否则：
@@ -217,6 +220,7 @@ domain-renewal-reminder/
 - `GET /api/domains`
 - `GET /api/domains/grouped`
 - `PUT /api/domains/:id`
+- `POST /api/domains/:id/renew`
 - `DELETE /api/domains/:id`
 
 ### 管理员
@@ -244,6 +248,30 @@ domain-renewal-reminder/
 - 确认 SMTP 或 HTTP API 发信配置可用
 - 生产升级时确认迁移是否已执行
 - 用真实邮箱验证注册邮件和提醒邮件都能收到
+
+## Workflow Upgrade Notes
+
+Run these migrations in order when upgrading an existing D1 database:
+
+```bash
+npx wrangler d1 execute domain_renewal_db --remote --file=migrations/0002_email_send_logs.sql
+npx wrangler d1 execute domain_renewal_db --remote --file=migrations/0003_domain_status_workflow.sql
+npx wrangler d1 execute domain_renewal_db --remote --file=migrations/0004_domain_workflow_fields.sql
+```
+
+The `domains` table should include:
+
+- `status`
+- `status_note`
+- `owner`
+- `processed_at`
+- `last_renewed_at`
+
+Current workflow:
+
+- `POST /api/domains/:id/renew` advances the domain by one usage period, resets reminder progress, and updates `processed_at` plus `last_renewed_at`
+- `PUT /api/domains/:id` supports `status`, `statusNote`, `owner`, and `processedAt`
+- Reminder cron only sends for domains with `status = 'active'`
 
 ## License
 

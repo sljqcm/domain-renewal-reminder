@@ -101,6 +101,7 @@ domains.get('/', async (c) => {
     const renewalUrl = c.req.query('renewalUrl');
     const usagePeriodYears = c.req.query('usagePeriodYears');
     const reminderCount = c.req.query('reminderCount');
+    const status = c.req.query('status');
     const page = parseInt(c.req.query('page') || '1', 10);
     const pageSize = parseInt(c.req.query('pageSize') || '20', 10);
 
@@ -108,6 +109,7 @@ domains.get('/', async (c) => {
     if (renewalUrl) filters.renewalUrl = renewalUrl;
     if (usagePeriodYears) filters.usagePeriodYears = parseInt(usagePeriodYears, 10);
     if (reminderCount) filters.reminderCount = parseInt(reminderCount, 10);
+    if (status) filters.status = status;
 
     const domainService = new DomainService(c.env.DB as D1Database);
     const result = await domainService.getUserDomains(userId, filters, page, pageSize);
@@ -170,6 +172,16 @@ domains.put('/:id', async (c) => {
       updates.registrationDate = new Date(updates.registrationDate);
     }
 
+    if (updates.reminderStartDate && typeof updates.reminderStartDate === 'string') {
+      updates.reminderStartDate = Math.floor(new Date(updates.reminderStartDate).getTime() / 1000);
+    }
+
+    if (updates.processedAt !== undefined && typeof updates.processedAt === 'string') {
+      updates.processedAt = updates.processedAt
+        ? Math.floor(new Date(updates.processedAt).getTime() / 1000)
+        : null;
+    }
+
     const domainService = new DomainService(c.env.DB as D1Database);
     const result = await domainService.updateDomain(userId, domainId, updates);
 
@@ -182,6 +194,34 @@ domains.put('/:id', async (c) => {
         error: {
           code: 'INTERNAL_ERROR',
           message: 'An error occurred while updating domain',
+        },
+      },
+      500
+    );
+  }
+});
+
+/**
+ * POST /domains/:id/renew
+ * Mark a domain as renewed and roll dates forward
+ */
+domains.post('/:id/renew', async (c) => {
+  try {
+    const userId = c.get('userId') as string;
+    const domainId = c.req.param('id');
+
+    const domainService = new DomainService(c.env.DB as D1Database);
+    const result = await domainService.renewDomain(userId, domainId);
+
+    return c.json(result, result.success ? 200 : 400);
+  } catch (error) {
+    console.error('Renew domain route error:', error);
+    return c.json(
+      {
+        success: false,
+        error: {
+          code: 'INTERNAL_ERROR',
+          message: 'An error occurred while renewing domain',
         },
       },
       500

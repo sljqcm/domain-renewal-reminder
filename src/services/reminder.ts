@@ -98,6 +98,7 @@ export class ReminderService {
           `SELECT * FROM domains
            WHERE reminder_start_date <= ?
            AND expiry_date >= ?
+           AND status = 'active'
            AND reminders_sent < reminder_count
            ORDER BY expiry_date ASC`
         )

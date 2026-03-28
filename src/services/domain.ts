@@ -3,12 +3,49 @@
  * Handles domain record CRUD operations
  */
 
-import { Domain, DomainInput, DomainFilters, ApiResponse } from '../types';
-import { validateDomainInput } from '../utils/validation';
-import { calculateExpiryDate, calculateReminderDate, dateToTimestamp } from '../utils/date';
+import { Domain, DomainInput, DomainFilters, ApiResponse, DomainStatus } from '../types';
+import { validateDomainInput, isValidDomainStatus } from '../utils/validation';
+import { calculateExpiryDate, calculateReminderDate, dateToTimestamp, timestampToDate } from '../utils/date';
 
 export class DomainService {
   constructor(private db: D1Database) {}
+
+  private normalizeOptionalText(value: unknown, maxLength: number): string | null {
+    if (typeof value !== 'string') {
+      return null;
+    }
+
+    const trimmed = value.trim();
+    if (!trimmed) {
+      return null;
+    }
+
+    return trimmed.slice(0, maxLength);
+  }
+
+  private normalizeStatusNote(note: unknown): string | null {
+    return this.normalizeOptionalText(note, 500);
+  }
+
+  private normalizeOwner(owner: unknown): string | null {
+    return this.normalizeOptionalText(owner, 120);
+  }
+
+  private normalizeTimestamp(value: unknown): number | null {
+    if (value === null || value === undefined || value === '') {
+      return null;
+    }
+
+    if (value instanceof Date) {
+      return dateToTimestamp(value);
+    }
+
+    if (typeof value === 'number' && Number.isFinite(value)) {
+      return Math.floor(value);
+    }
+
+    return null;
+  }
 
   private calculateReminderDaysOffset(expiryDate: Date, reminderStartDate: Date): number {
     const diff = expiryDate.getTime() - reminderStartDate.getTime();
@@ -177,7 +214,13 @@ export class DomainService {
   async updateDomain(
     userId: string,
     domainId: string,
-    updates: Partial<DomainInput> & { reminderStartDate?: number | Date }
+    updates: Partial<DomainInput> & {
+      reminderStartDate?: number | Date;
+      status?: DomainStatus;
+      statusNote?: string | null;
+      owner?: string | null;
+      processedAt?: number | Date | null;
+    }
   ): Promise<ApiResponse> {
     try {
       // Get existing domain
@@ -247,7 +290,31 @@ export class DomainService {
         };
       }
 
+      const nextStatus = updates.status ?? ((existing.status as DomainStatus | null) || 'active');
+      if (!isValidDomainStatus(nextStatus)) {
+        return {
+          success: false,
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Invalid domain status',
+          },
+        };
+      }
+
+      const statusNote =
+        updates.statusNote !== undefined ? this.normalizeStatusNote(updates.statusNote) : this.normalizeStatusNote(existing.status_note);
+      const owner = updates.owner !== undefined ? this.normalizeOwner(updates.owner) : this.normalizeOwner(existing.owner);
+
       const now = Math.floor(Date.now() / 1000);
+      const manualProcessedAt =
+        updates.processedAt !== undefined ? this.normalizeTimestamp(updates.processedAt) : existing.processed_at ?? null;
+      let processedAt = manualProcessedAt;
+
+      if (nextStatus === 'handled') {
+        processedAt = manualProcessedAt ?? now;
+      } else if (updates.status !== undefined) {
+        processedAt = null;
+      }
 
       await this.db
         .prepare(
@@ -255,6 +322,7 @@ export class DomainService {
             domain_address = ?, renewal_url = ?, registration_date = ?,
             usage_period_years = ?, expiry_date = ?, reminder_days_offset = ?,
             reminder_start_date = ?, reminder_email = ?, reminder_count = ?,
+            status = ?, status_note = ?, owner = ?, processed_at = ?,
             updated_at = ?
           WHERE id = ? AND user_id = ?`
         )
@@ -268,6 +336,10 @@ export class DomainService {
           dateToTimestamp(reminderStartDate),
           merged.reminderEmail,
           merged.reminderCount,
+          nextStatus,
+          statusNote,
+          owner,
+          processedAt,
           now,
           domainId,
           userId
@@ -326,6 +398,78 @@ export class DomainService {
     }
   }
 
+  async renewDomain(
+    userId: string,
+    domainId: string
+  ): Promise<ApiResponse<{ previousExpiryDate: number; nextExpiryDate: number }>> {
+    try {
+      const existing = await this.db
+        .prepare('SELECT * FROM domains WHERE id = ? AND user_id = ?')
+        .bind(domainId, userId)
+        .first<Domain>();
+
+      if (!existing) {
+        return {
+          success: false,
+          error: {
+            code: 'DOMAIN_NOT_FOUND',
+            message: 'Domain not found',
+          },
+        };
+      }
+
+      const previousExpiryDate = existing.expiry_date;
+      const nextRegistrationDate = timestampToDate(existing.expiry_date);
+      const nextExpiryDate = calculateExpiryDate(nextRegistrationDate, existing.usage_period_years);
+      const nextReminderStartDate = calculateReminderDate(nextExpiryDate, existing.reminder_days_offset);
+      const now = Math.floor(Date.now() / 1000);
+
+      await this.db
+        .prepare(
+          `UPDATE domains SET
+            registration_date = ?,
+            expiry_date = ?,
+            reminder_start_date = ?,
+            reminders_sent = 0,
+            status = 'active',
+            status_note = NULL,
+            processed_at = ?,
+            last_renewed_at = ?,
+            updated_at = ?
+          WHERE id = ? AND user_id = ?`
+        )
+        .bind(
+          dateToTimestamp(nextRegistrationDate),
+          dateToTimestamp(nextExpiryDate),
+          dateToTimestamp(nextReminderStartDate),
+          now,
+          now,
+          now,
+          domainId,
+          userId
+        )
+        .run();
+
+      return {
+        success: true,
+        data: {
+          previousExpiryDate,
+          nextExpiryDate: dateToTimestamp(nextExpiryDate),
+        },
+        message: 'Domain renewed successfully',
+      };
+    } catch (error) {
+      console.error('Renew domain error:', error);
+      return {
+        success: false,
+        error: {
+          code: 'RENEW_DOMAIN_FAILED',
+          message: 'Failed to renew domain',
+        },
+      };
+    }
+  }
+
   /**
    * Get user's domains with optional filters and pagination
    */
@@ -366,6 +510,13 @@ export class DomainService {
         countQuery += ' AND reminder_count = ?';
         params.push(filters.reminderCount);
         countParams.push(filters.reminderCount);
+      }
+
+      if (filters?.status) {
+        query += ' AND status = ?';
+        countQuery += ' AND status = ?';
+        params.push(filters.status);
+        countParams.push(filters.status);
       }
 
       // Get total count

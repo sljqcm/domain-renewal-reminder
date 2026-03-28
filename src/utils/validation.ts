@@ -2,7 +2,9 @@
  * Input validation utilities
  */
 
-import { DomainInput } from '../types';
+import { DomainInput, DomainStatus } from '../types';
+
+export const DOMAIN_STATUSES: DomainStatus[] = ['active', 'paused', 'handled', 'abandoned'];
 
 /**
  * Validates domain address format
@@ -74,6 +76,10 @@ export function validateDomainInput(input: Partial<DomainInput>): {
     valid: errors.length === 0,
     errors,
   };
+}
+
+export function isValidDomainStatus(status: unknown): status is DomainStatus {
+  return typeof status === 'string' && DOMAIN_STATUSES.includes(status as DomainStatus);
 }
 
 /**
