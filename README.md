@@ -298,7 +298,7 @@ wrangler d1 execute domain_renewal_db --remote --file=migrations/0004_domain_wor
 
 ### 📄 许可证
 
-MIT License
+本项目采用 [MIT License](LICENSE)。
 
 ### 📞 支持
 
@@ -388,7 +388,7 @@ wrangler d1 execute domain_renewal_db --remote --file=migrations/0004_domain_wor
 
 ### 📄 License
 
-MIT License
+This project is licensed under the [MIT License](LICENSE).
 
 ### 📞 Support
 
