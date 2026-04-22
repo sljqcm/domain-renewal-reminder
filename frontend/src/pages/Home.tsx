@@ -3,29 +3,31 @@ import { BrandLogo } from '../components/logo';
 
 const coreCapabilities = [
   {
-    title: '统一台账',
-    description: '集中维护域名地址、续费链接、使用周期、提醒次数与责任信息。',
+    title: '把域名集中记清',
+    description: '把域名、到期时间、续费地址、提醒邮箱和负责人放到同一个面板，不再散落在表格、备忘录和聊天记录里。',
   },
   {
-    title: '自动提醒',
-    description: '系统按计划计算到期时间并执行每日检查，降低遗漏和延迟处理风险。',
+    title: '到期前自动提醒',
+    description: '系统会按你设定的节奏每天检查，并在接近到期时提醒你处理，减少忘记续费的风险。',
   },
   {
-    title: '续费闭环',
-    description: '完成续费后自动顺延周期、重置提醒进度，并保留处理记录。',
+    title: '处理过程可追踪',
+    description: '支持提醒中、已处理、已暂停、已放弃等状态；续费后自动进入下一轮，并保留备注和处理记录。',
   },
 ];
 
 const operatingHighlights = [
-  ['认证与权限', '支持注册、登录、邮箱验证与管理员入口。'],
-  ['部署架构', '基于 Cloudflare Workers、D1、KV 与 Pages 运行。'],
-  ['通知方式', '支持 HTTP API 与 SMTP 两类邮件发送配置。'],
+  ['域名清单', '就是把所有域名放在一个地方统一查看、搜索和分组。'],
+  ['自动提醒', '就是系统在到期前按计划提醒你，不用自己盯日历。'],
+  ['续费接续', '就是标记已续费后，系统自动重算下一轮到期和提醒时间。'],
+  ['后台配置', '就是管理员可以配置邮件服务、查看日志并手动触发检查。'],
 ];
 
 const processSteps = [
-  '录入域名、注册日期、使用周期与提醒参数。',
-  '系统自动计算到期日期、提醒起始时间与发送进度。',
-  '续费完成后更新状态，并进入新的提醒周期。',
+  '先注册账户，再添加域名，或者通过 CSV / AI 识别批量导入。',
+  '系统自动计算到期时间、提醒开始时间和提醒次数。',
+  '处理人跟进后更新状态、备注和处理时间。',
+  '完成续费后，一键进入下一轮提醒周期。',
 ];
 
 export function Home() {
@@ -52,7 +54,7 @@ export function Home() {
               </svg>
             </a>
             <Link to="/login" className="primary-button landing-entry-button">
-              进入控制台
+              登录
             </Link>
           </nav>
         </div>
@@ -61,39 +63,46 @@ export function Home() {
       <main className="app-main landing-main landing-main--single">
         <section className="home-brief animate-slideUp">
           <div className="home-brief__hero">
-            <p className="home-brief__eyebrow">域名续费与提醒管理</p>
-            <h1 className="home-brief__title">规范管理域名续费与提醒流程</h1>
+            <p className="home-brief__eyebrow">域名续费管理，不靠记忆</p>
+            <h1 className="home-brief__title">把域名记录、提醒和续费处理放到一个地方</h1>
             <p className="home-brief__description">
-              提供域名台账、到期提醒、续费闭环和后台配置能力，适合个人与小规模团队持续使用。
+              爱自由域名管理帮助你记清每个域名什么时候到期、谁在处理、是否已经续费，适合个人站长、工作室和小团队长期使用。
             </p>
             <div className="home-brief__annotation">
-              <span>支持批量导入、状态管理与处理审计</span>
-              <span>基于 Cloudflare Workers、D1、KV 与 Pages 部署</span>
+              <span>支持 CSV 与 AI 批量导入</span>
+              <span>支持状态、备注、处理人和处理时间记录</span>
+              <span>续费后自动进入下一轮提醒</span>
             </div>
-            <p className="home-brief__subaction">
-              首次使用请先
-              <Link to="/register" className="inline-link">
-                注册账户
+            <div className="button-row">
+              <Link to="/register" className="primary-button">
+                先注册开始使用
               </Link>
-              。
-            </p>
+              <Link to="/login" className="secondary-button">
+                已有账户，直接登录
+              </Link>
+            </div>
+            <p className="home-brief__subaction">如果你是第一次使用，建议先注册，再批量导入或手动录入域名。</p>
           </div>
 
           <aside className="home-brief__summary" aria-label="Product summary">
             <div className="home-summary-block">
-              <div className="home-summary-block__label">核心范围</div>
-              <p>用户认证、域名管理、批量导入、提醒调度、邮件通知与管理员配置。</p>
+              <div className="home-summary-block__label">适合谁</div>
+              <p>适合自己管域名的人，也适合 2 到 10 人左右需要协作处理续费提醒的小团队。</p>
             </div>
             <div className="home-summary-block">
-              <div className="home-summary-block__label">运行方式</div>
-              <p>每日自动检查域名状态，并在续费完成后自动进入新的提醒周期。</p>
+              <div className="home-summary-block__label">怎么开始</div>
+              <p>注册账户后，录入域名或批量导入，系统就会自动开始计算到期时间和提醒计划。</p>
+            </div>
+            <div className="home-summary-block">
+              <div className="home-summary-block__label">技术方式</div>
+              <p>系统运行在 Cloudflare Workers、D1、KV 与 Pages 上，不需要你自己维护服务器。</p>
             </div>
           </aside>
         </section>
 
         <section className="home-sheet animate-slideUp" aria-label="Homepage details">
           <div className="home-sheet__column">
-            <div className="home-sheet__heading">核心能力</div>
+            <div className="home-sheet__heading">你能做什么</div>
             <div className="home-feature-list">
               {coreCapabilities.map((item) => (
                 <article key={item.title} className="home-feature-item">
@@ -105,7 +114,7 @@ export function Home() {
           </div>
 
           <div className="home-sheet__column">
-            <div className="home-sheet__heading">处理流程</div>
+            <div className="home-sheet__heading">怎么运转</div>
             <ol className="home-process-list">
               {processSteps.map((item) => (
                 <li key={item}>{item}</li>
@@ -114,7 +123,7 @@ export function Home() {
           </div>
 
           <div className="home-sheet__column">
-            <div className="home-sheet__heading">运行特性</div>
+            <div className="home-sheet__heading">页面里这些词是什么意思</div>
             <dl className="home-definition-list">
               {operatingHighlights.map(([term, detail]) => (
                 <div key={term} className="home-definition-item">
