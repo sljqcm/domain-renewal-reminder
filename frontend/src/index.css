@@ -608,6 +608,24 @@ pre {
   position: relative;
 }
 
+.skip-link {
+  position: absolute;
+  left: 16px;
+  top: -48px;
+  z-index: 80;
+  min-height: 44px;
+  padding: 10px 16px;
+  border-radius: 14px;
+  background: #0f1b24;
+  color: white;
+  box-shadow: 0 16px 34px rgba(6, 29, 41, 0.22);
+  transition: top 160ms ease;
+}
+
+.skip-link:focus {
+  top: 16px;
+}
+
 .app-topbar {
   position: sticky;
   top: 0;
@@ -932,6 +950,29 @@ pre {
   gap: 12px;
 }
 
+.landing-nav--rich {
+  justify-content: flex-end;
+}
+
+.landing-anchor-link {
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #405867;
+  font-size: 0.94rem;
+  font-weight: 600;
+  transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.landing-anchor-link:hover {
+  background: rgba(255, 255, 255, 0.75);
+  color: #0a668f;
+  transform: translateY(-1px);
+}
+
 .landing-icon-link {
   width: 52px;
   height: 52px;
@@ -1094,6 +1135,33 @@ pre {
   align-items: stretch;
 }
 
+.hero-proof-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+
+.hero-proof-list li {
+  position: relative;
+  padding-left: 18px;
+  color: #425b6a;
+  line-height: 1.75;
+}
+
+.hero-proof-list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.72em;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #0eb3f0, #0a668f);
+  box-shadow: 0 0 0 5px rgba(14, 179, 240, 0.1);
+}
+
 .landing-signal-grid {
   display: grid;
   gap: 12px;
@@ -1213,6 +1281,91 @@ pre {
 .liquid-stack {
   display: grid;
   gap: 12px;
+}
+
+.preview-board {
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.58);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.4)),
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.7), transparent 54%);
+  box-shadow: 0 16px 36px rgba(6, 29, 41, 0.08);
+}
+
+.preview-board__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.preview-board__header strong {
+  font-size: 1rem;
+  color: #0f1b24;
+}
+
+.preview-board__header span {
+  color: var(--app-text-faint);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.preview-queue {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 12px;
+}
+
+.preview-queue__item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.64);
+  border: 1px solid rgba(80, 100, 115, 0.1);
+}
+
+.preview-queue__main,
+.preview-queue__meta {
+  display: grid;
+  gap: 4px;
+}
+
+.preview-queue__main strong,
+.preview-queue__meta {
+  color: #0f1b24;
+}
+
+.preview-queue__main span,
+.preview-queue__meta span:last-child {
+  color: var(--app-text-subtle);
+  font-size: 0.9rem;
+}
+
+.preview-queue__meta {
+  justify-items: end;
+  align-content: center;
+}
+
+.preview-status-tag {
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(14, 179, 240, 0.12);
+  color: #0a668f;
+  border: 1px solid rgba(14, 179, 240, 0.18);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
 }
 
 .liquid-stack-card {
@@ -1397,6 +1550,66 @@ pre {
   margin: 10px 0 0;
   color: var(--app-text-subtle);
   line-height: 1.8;
+}
+
+.trust-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.trust-card {
+  position: relative;
+  overflow: hidden;
+  min-height: 220px;
+  padding: 24px;
+  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.58);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.44)),
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.76), transparent 42%);
+  box-shadow: 0 18px 40px rgba(6, 29, 41, 0.08);
+  backdrop-filter: blur(24px) saturate(155%);
+}
+
+.trust-card::after {
+  content: "";
+  position: absolute;
+  right: -18px;
+  top: -18px;
+  width: 120px;
+  height: 120px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(14, 179, 240, 0.14), transparent 68%);
+  pointer-events: none;
+}
+
+.trust-card__label {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(80, 100, 115, 0.1);
+  color: #0a668f;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.trust-card h3 {
+  margin: 18px 0 0;
+  font-size: 1.45rem;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+  color: #0f1b24;
+}
+
+.trust-card p {
+  margin: 12px 0 0;
+  color: var(--app-text-subtle);
+  line-height: 1.85;
 }
 
 .landing-cta__title {
@@ -1646,10 +1859,19 @@ pre {
     grid-template-columns: 52px 1fr 1fr;
   }
 
+  .landing-nav--rich {
+    width: 100%;
+    grid-template-columns: 1fr 1fr;
+  }
+
   .landing-nav--minimal {
     width: auto;
     display: flex;
     grid-template-columns: none;
+  }
+
+  .landing-anchor-link {
+    display: none;
   }
 
   .landing-title {
@@ -1667,7 +1889,8 @@ pre {
   .liquid-panel--cta,
   .liquid-panel--feature,
   .liquid-card,
-  .workflow-node {
+  .workflow-node,
+  .trust-card {
     padding: 20px;
     border-radius: 24px;
   }
@@ -1687,6 +1910,19 @@ pre {
 
   .liquid-preview__header {
     flex-direction: column;
+  }
+
+  .preview-board__header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .preview-queue__item {
+    grid-template-columns: 1fr;
+  }
+
+  .preview-queue__meta {
+    justify-items: start;
   }
 
   .landing-section__heading h2,
@@ -1752,6 +1988,10 @@ pre {
     grid-template-columns: 1fr;
   }
 
+  .landing-nav--rich {
+    grid-template-columns: 1fr;
+  }
+
   .landing-nav--minimal {
     width: 100%;
     display: grid;
@@ -1783,6 +2023,10 @@ pre {
 
   .workflow-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .trust-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
