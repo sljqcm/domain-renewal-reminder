@@ -3,91 +3,43 @@ import { BrandLogo } from '../components/logo';
 
 const heroSignals = [
   { label: '提醒策略', value: '30 / 15 / 7 天分级提醒' },
-  { label: '导入方式', value: '手动、CSV、AI 导入' },
-  { label: '处理闭环', value: '状态、责任人、日志闭环' },
+  { label: '数据导入', value: '手动、CSV、AI 导入' },
+  { label: '处理闭环', value: '状态、责任人、日志同步' },
 ];
 
 const dashboardStats = [
-  { value: '24', label: '本月需要留意的域名' },
-  { value: '08', label: '已经进入提醒周期' },
-  { value: '03', label: '今天刚完成续费更新' },
+  { value: '24', label: '待关注域名' },
+  { value: '08', label: '提醒中' },
+  { value: '03', label: '今日续费完成' },
 ];
 
 const reminderQueue = [
-  { domain: 'aiziyou.com', meta: '2026-05-03 到期', status: '提醒中', owner: '运营负责人' },
-  { domain: 'studio-notes.cn', meta: '2026-05-18 到期', status: '待确认', owner: '创始人' },
-  { domain: 'client-landing.io', meta: '2026-06-02 到期', status: '已续费', owner: '项目经理' },
+  { domain: 'aiziyou.com', meta: '2026-05-03 到期', status: '提醒中' },
+  { domain: 'studio-notes.cn', meta: '2026-05-18 到期', status: '待确认' },
+  { domain: 'client-landing.io', meta: '2026-06-02 到期', status: '已续费' },
 ];
 
 const capabilities = [
   {
-    badge: 'Domain Desk',
-    title: '统一管理域名资产',
+    badge: 'Assets',
+    title: '统一资产视图',
     description: '域名、到期日、注册商与备注统一归档。',
   },
   {
-    badge: 'Reminder Engine',
-    title: '自动执行续费提醒',
-    description: '按策略巡检并触发提醒，减少人工跟踪。',
+    badge: 'Automation',
+    title: '自动提醒引擎',
+    description: '按策略巡检并触发续费提醒。',
   },
   {
-    badge: 'Workflow',
-    title: '清晰追踪处理状态',
-    description: '状态、责任人、处理时间实时同步。',
-  },
-  {
-    badge: 'Batch Import',
-    title: '快速导入历史数据',
-    description: '支持 CSV 与 AI 识别，低成本迁移旧数据。',
+    badge: 'Collaboration',
+    title: '协作状态同步',
+    description: '状态、责任人与处理结果实时留痕。',
   },
 ];
 
-const workflow = [
-  {
-    step: '01',
-    title: '导入资产',
-    description: '建立统一域名清单。',
-  },
-  {
-    step: '02',
-    title: '生成提醒',
-    description: '按到期日自动计算提醒窗口。',
-  },
-  {
-    step: '03',
-    title: '更新状态',
-    description: '处理结果与责任归属实时留痕。',
-  },
-  {
-    step: '04',
-    title: '续费接续',
-    description: '续费完成后自动进入下一周期。',
-  },
-];
+const flowSteps = ['导入资产', '生成提醒', '更新状态', '续费接续'];
 
-const trustCards = [
-  {
-    label: '适合谁',
-    title: '个人与小团队',
-    description: '适合多域名的长期管理与协作交接。',
-  },
-  {
-    label: '部署方式',
-    title: 'Cloudflare 原生部署',
-    description: 'Pages、Workers、D1、KV 组合，轻量稳定。',
-  },
-  {
-    label: '管理透明度',
-    title: '全链路可追踪',
-    description: '提醒、处理、续费记录统一留痕。',
-  },
-];
-
-const productHighlights = [
-  '首页直出提醒视图',
-  '状态模型面向协作',
-  '移动端优先布局',
-];
+const systemTags = ['Cloudflare 原生部署', '多人协作留痕', '移动端优先'];
 
 export function Home() {
   return (
@@ -103,16 +55,7 @@ export function Home() {
       <header className="app-topbar landing-topbar landing-topbar--minimal">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
           <BrandLogo title="爱自由域名管理" subtitle="Domain Renewal Reminder Service" />
-          <nav className="landing-nav landing-nav--rich" aria-label="Homepage navigation">
-            <a href="#capabilities" className="landing-anchor-link">
-              核心能力
-            </a>
-            <a href="#workflow" className="landing-anchor-link">
-              工作流
-            </a>
-            <a href="#trust" className="landing-anchor-link">
-              部署与可信度
-            </a>
+          <nav className="landing-nav landing-nav--minimal" aria-label="Homepage actions">
             <a
               href="https://github.com/zhikanyeye/domain-renewal-reminder"
               target="_blank"
@@ -129,7 +72,7 @@ export function Home() {
               登录
             </Link>
             <Link to="/register" className="primary-button landing-entry-button">
-              开始管理域名
+              立即开始
             </Link>
           </nav>
         </div>
@@ -147,10 +90,10 @@ export function Home() {
 
             <div className="landing-actions">
               <Link to="/register" className="primary-button">
-                立即开始
+                创建控制台
               </Link>
               <Link to="/login" className="secondary-button">
-                查看控制台
+                进入系统
               </Link>
             </div>
 
@@ -162,12 +105,6 @@ export function Home() {
                 </article>
               ))}
             </div>
-
-            <ul className="hero-proof-list" aria-label="Design highlights">
-              {productHighlights.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
           </div>
 
           <aside className="liquid-panel liquid-panel--aside animate-fadeIn" aria-label="Product preview">
@@ -179,7 +116,7 @@ export function Home() {
                 </div>
                 <div className="liquid-status-pill">
                   <span className="liquid-status-pill__dot" aria-hidden="true" />
-                  自动巡检已开启
+                  自动巡检运行中
                 </div>
               </div>
 
@@ -194,7 +131,7 @@ export function Home() {
 
               <div className="preview-board">
                 <div className="preview-board__header">
-                  <strong>近期续费处理队列</strong>
+                  <strong>续费队列</strong>
                   <span>今日同步</span>
                 </div>
                 <ul className="preview-queue">
@@ -206,89 +143,71 @@ export function Home() {
                       </div>
                       <div className="preview-queue__meta">
                         <span className="preview-status-tag">{item.status}</span>
-                        <span>{item.owner}</span>
                       </div>
                     </li>
                   ))}
                 </ul>
               </div>
 
-              <div className="liquid-stack">
+              <div className="preview-mini-grid">
                 <div className="liquid-stack-card liquid-stack-card--accent">
-                  <div className="liquid-stack-card__label">工作方式</div>
+                  <div className="liquid-stack-card__label">流程</div>
                   <div className="liquid-stack-card__title">记录 / 提醒 / 续费闭环</div>
                   <p>续费完成后自动进入下一周期。</p>
                 </div>
                 <div className="liquid-stack-card">
-                  <div className="liquid-stack-card__label">部署结构</div>
+                  <div className="liquid-stack-card__label">部署</div>
                   <div className="liquid-stack-card__title">Cloudflare Pages + Workers + D1 + KV</div>
-                  <p>Cloudflare 原生栈，轻量部署，稳定运行。</p>
+                  <p>轻量部署，稳定运行。</p>
                 </div>
               </div>
             </div>
           </aside>
         </section>
 
-        <section id="capabilities" className="landing-section animate-slideUp" aria-labelledby="capabilities-title">
+        <section id="capabilities" className="landing-section landing-section--compact animate-slideUp" aria-labelledby="capabilities-title">
           <div className="landing-section__heading">
-            <div className="liquid-chip">Capabilities</div>
-            <h2 id="capabilities-title">为域名资产建立统一续费系统</h2>
-            <p>聚焦管理、提醒、协作与续费接续。</p>
+            <div className="liquid-chip">Core</div>
+            <h2 id="capabilities-title">少量页面，覆盖完整续费流程</h2>
+            <p>聚焦资产管理、自动提醒与协作同步。</p>
           </div>
 
           <div className="landing-feature-grid">
             {capabilities.map((item) => (
-              <article key={item.title} className="liquid-card">
+              <article key={item.title} className="liquid-card compact-card">
                 <div className="liquid-card__badge">{item.badge}</div>
                 <h3>{item.title}</h3>
                 <p>{item.description}</p>
               </article>
             ))}
-          </div>
-        </section>
 
-        <section id="workflow" className="landing-section animate-slideUp" aria-labelledby="workflow-title">
-          <div className="landing-section__heading">
-            <div className="liquid-chip">Workflow</div>
-            <h2 id="workflow-title">四步完成域名续费闭环</h2>
-            <p>从导入到续费接续，全程自动衔接。</p>
-          </div>
-
-          <div className="workflow-grid">
-            {workflow.map((item) => (
-              <article key={item.step} className="workflow-node">
-                <div className="workflow-node__step">{item.step}</div>
-                <div className="workflow-node__body">
-                  <h3>{item.title}</h3>
-                  <p>{item.description}</p>
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section id="trust" className="landing-section animate-slideUp" aria-labelledby="trust-title">
-          <div className="landing-section__heading">
-            <div className="liquid-chip">Trust Layer</div>
-            <h2 id="trust-title">轻量部署，清晰协作，持续可追踪</h2>
-            <p>面向长期运行的域名管理场景。</p>
-          </div>
-
-          <div className="trust-grid">
-            {trustCards.map((item) => (
-              <article key={item.title} className="trust-card">
-                <div className="trust-card__label">{item.label}</div>
-                <h3>{item.title}</h3>
-                <p>{item.description}</p>
-              </article>
-            ))}
+            <div className="liquid-panel liquid-panel--feature liquid-card--wide feature-rail">
+              <div className="feature-rail__header">
+                <div className="liquid-chip">Flow</div>
+                <h3>导入到续费接续，全链路自动衔接</h3>
+              </div>
+              <div className="ops-strip" aria-label="Process steps">
+                {flowSteps.map((item) => (
+                  <span key={item} className="ops-pill">
+                    {item}
+                  </span>
+                ))}
+              </div>
+              <div className="feature-tags" aria-label="System tags">
+                {systemTags.map((item) => (
+                  <span key={item} className="feature-tag">
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </div>
           </div>
         </section>
 
         <section className="landing-section animate-slideUp" aria-labelledby="cta-title">
           <div className="liquid-panel liquid-panel--cta">
             <div>
-              <div className="liquid-chip liquid-chip--soft">Ready to Start</div>
+              <div className="liquid-chip liquid-chip--soft">Ready</div>
               <h2 id="cta-title" className="landing-cta__title">把域名续费管理交给系统</h2>
               <p className="landing-cta__text">现在开始建立你的域名控制台。</p>
             </div>
