@@ -50,22 +50,22 @@ app.route('/api/domains', domainRoutes);
 app.route('/api/admin', adminRoutes);
 
 // Scheduled event handler for cron triggers
-export default {
+const handler: ExportedHandler<Env> = {
   fetch: app.fetch,
-  
+
   async scheduled(
     event: ScheduledEvent,
     env: Env,
     _ctx: ExecutionContext
   ): Promise<void> {
     console.log('Cron trigger fired at:', new Date(event.scheduledTime).toISOString());
-    
+
     try {
       const { ReminderService } = await import('./services/reminder');
       const reminderService = new ReminderService(env.DB, env.KV, env.ENCRYPTION_KEY);
-      
+
       const result = await reminderService.checkReminders();
-      
+
       if (result.success) {
         console.log('Reminder check completed:', result.message);
       } else {
@@ -76,3 +76,5 @@ export default {
     }
   },
 };
+
+export default handler;
