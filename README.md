@@ -365,6 +365,48 @@ wrangler d1 execute domain_renewal_db --remote --file=migrations/0005_ai_import_
 
 **结论：个人使用或小团队场景基本可免费运行。**
 
+### 🌐 免费域名推荐
+
+既然是域名管理工具，这里推荐几个靠谱的免费域名注册平台：
+
+#### Gname — 免费 .eu.cc 域名
+
+- [官网注册](https://gname.vip/tld-eu-cc.html)
+- 每人可免费注册 3 个 .eu.cc 后缀域名
+- 支持自定义 NS 服务器，可托管到 Cloudflare
+
+#### ZoneABC — 免费子域名
+
+- [注册地址](https://zoneabc.net/register?invite=9487af8186fb4ffbac5d347d9a543098)（含邀请码）
+- 提供免费子域名注册服务
+- 接入 Cloudflare 企业级防护
+
+#### DigitalPlat — 免费域名平台
+
+- [注册地址](https://dash.domain.digitalplat.org/signup?ref=CXjbm3l0yE)（含邀请码）
+- 提供多种免费域名后缀
+- 支持修改 NS 服务器
+
+#### DNSHE — 免费域名注册
+
+- [注册地址](https://my.dnshe.com/index.php?m=domain_hub&view=tools&invite_code=VAVF68G4N7KB)（含邀请码）
+- 国内团队运营，中文界面友好
+- DNS 解析功能完善
+
+#### StackRyze — 多后缀免费域名
+
+- [官网注册](https://domain.stackryze.com/)
+- 支持多种后缀：`indevs.in`、`sryze.cc`、`ryzedns.org`、`nx.kg`
+- 一年免费期，到期可无限续期
+
+#### VPS8 — 专业级 DNS 托管
+
+- [官网注册](https://vps8.zz.cd)
+- 自带 PowerDNS 管理系统
+- 支持根域名 CNAME 记录（CNAME Flattening）
+
+> 以上平台注册的域名大多支持修改 NS 服务器托管到 Cloudflare，享受 CDN 加速和 DDoS 防护。
+
 ### 📄 许可证
 
 本项目采用 [MIT License](LICENSE)。
