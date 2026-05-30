@@ -28,7 +28,7 @@ fallthrough = true
 [[d1_databases]]
 binding = "DB"
 database_name = "domain_renewal_db"
-database_id = "b80fa24a-841f-49da-84a5-cffddb1c5c77"
+database_id = "f8dc5167-547e-4b35-848a-605ed52919f0"
 
 # KV namespace bindings
 [[kv_namespaces]]
