@@ -8,9 +8,11 @@ compatibility_flags = ["nodejs_compat"]
 workers_dev = false
 preview_urls = false
 
-routes = [
-  { pattern = "new.zhiye.de5.net", zone_name = "zhiye.de5.net", custom_domain = true },
-]
+# Configure your custom domain route in Cloudflare Dashboard or via wrangler CLI
+# Example: wrangler deploy --route "your-domain.com/*"
+# routes = [
+#   { pattern = "your-api-domain.example.com", zone_name = "example.com", custom_domain = true },
+# ]
 
 # External modules rules
 [[rules]]
